@@ -17,10 +17,21 @@ function renderSpecial(special) {
   const section = document.querySelector('#special-section');
   section.hidden = !special?.active;
   if (!special?.active) return;
+  const image = document.querySelector('#special-image');
+  const number = document.querySelector('.special-number');
   document.querySelector('#special-month').textContent = special.month;
   document.querySelector('#special-name').textContent = special.name;
   document.querySelector('#special-description').textContent = special.description;
   document.querySelector('#special-price').textContent = euro.format(special.price);
+  if (special.imageUrl) {
+    image.src = special.imageUrl;
+    image.alt = special.name ? `Snack van de maand: ${special.name}` : 'Snack van de maand';
+    image.hidden = false;
+    number.hidden = true;
+  } else {
+    image.hidden = true;
+    number.hidden = false;
+  }
 }
 
 function productMarkup(product) {
@@ -64,6 +75,32 @@ function renderMenu(data, selected = '') {
   }));
 }
 
+function renderPopular(data) {
+  const section = document.querySelector('#popular-section');
+  const grid = document.querySelector('#popular-grid');
+  const ids = Array.isArray(data.popularProductIds) ? data.popularProductIds : [];
+  const visibleProducts = data.products.filter(product => product.visible);
+  const products = ids
+    .map(id => visibleProducts.find(product => product.id === id))
+    .filter(Boolean)
+    .slice(0, 6);
+
+  section.hidden = !products.length;
+  if (!products.length) return;
+
+  grid.innerHTML = products.map((product, index) => {
+    const category = data.categories.find(item => item.id === product.categoryId);
+    return `<article class="popular-card">
+      <span class="popular-index">${String(index + 1).padStart(2, '0')}</span>
+      <div>
+        <h3>${escapeHtml(product.name)}</h3>
+        <p>${escapeHtml(category?.name || 'Menukaart')}</p>
+      </div>
+      <strong>${Array.isArray(product.variants) && product.variants.length ? `vanaf ${euro.format(product.price)}` : euro.format(product.price)}</strong>
+    </article>`;
+  }).join('');
+}
+
 function escapeHtml(value) {
   return String(value).replace(/[&<>'"]/g, character => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' })[character]);
 }
@@ -74,6 +111,7 @@ async function loadMenu() {
     if (!response.ok) throw new Error();
     const data = await response.json();
     renderSpecial(data.monthlySpecial);
+    renderPopular(data);
     renderMenu(data);
   } catch {
     document.querySelector('#menu-grid').innerHTML = '<p class="menu-empty">De menukaart kan nu niet worden geladen. Bel ons gerust voor het actuele aanbod.</p>';

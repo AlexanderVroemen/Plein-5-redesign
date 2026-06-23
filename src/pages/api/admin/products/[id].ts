@@ -14,6 +14,7 @@ export const DELETE: APIRoute = async ({ locals, params, request }) => {
   if (index < 0) return json({ error: 'Product niet gevonden' }, 404);
 
   data.products.splice(index, 1);
+  data.popularProductIds = (data.popularProductIds || []).filter((id) => id !== params.id);
   await writeMenu(data, env);
 
   return json({ ok: true });
@@ -47,6 +48,11 @@ export const PUT: APIRoute = async ({ locals, params, request }) => {
   };
 
   if (!variants.length) delete data.products[index].variants;
+
+  const popularIds = new Set(data.popularProductIds || []);
+  if (body.popular === true) popularIds.add(data.products[index].id);
+  else popularIds.delete(data.products[index].id);
+  data.popularProductIds = [...popularIds].filter((id) => data.products.some((product) => product.id === id));
 
   await writeMenu(data, env);
 

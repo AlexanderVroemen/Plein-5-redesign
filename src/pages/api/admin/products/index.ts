@@ -36,6 +36,9 @@ export const POST: APIRoute = async ({ locals, request }) => {
   };
 
   data.products.push(product);
+  if (body.popular === true) {
+    data.popularProductIds = [...new Set([...(data.popularProductIds || []), product.id])];
+  }
   await writeMenu(data, env);
 
   return json(product, 201);

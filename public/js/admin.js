@@ -52,6 +52,10 @@ function filteredProducts() {
     .sort((a, b) => categoryName(a.categoryId).localeCompare(categoryName(b.categoryId), 'nl') || a.position - b.position);
 }
 
+function isPopular(id) {
+  return Array.isArray(menuData.popularProductIds) && menuData.popularProductIds.includes(id);
+}
+
 function productPriceSummary(product) {
   if (Array.isArray(product.variants) && product.variants.length) {
     const lowest = Math.min(...product.variants.map(variant => Number(variant.price)));
@@ -70,13 +74,13 @@ function renderProducts() {
     <td class="product-name">${escapeHtml(product.name)}</td>
     <td>${escapeHtml(categoryName(product.categoryId))}</td>
     <td class="price-cell">${productPriceSummary(product)}</td>
-    <td><span class="badge ${product.visible ? 'visible' : 'hidden'}">${product.visible ? 'Zichtbaar' : 'Verborgen'}</span></td>
-    <td><div class="row-actions"><button class="icon-button edit-product" data-id="${product.id}" title="Bewerken">✎</button><button class="icon-button delete-product" data-id="${product.id}" title="Verwijderen">×</button></div></td>
+    <td><span class="badge ${product.visible ? 'visible' : 'hidden'}">${product.visible ? 'Zichtbaar' : 'Verborgen'}</span>${isPopular(product.id) ? '<span class="badge popular">Populair</span>' : ''}</td>
+    <td><div class="row-actions"><button class="icon-button move-product" data-id="${product.id}" data-direction="up" title="Omhoog">↑</button><button class="icon-button move-product" data-id="${product.id}" data-direction="down" title="Omlaag">↓</button><button class="icon-button edit-product" data-id="${product.id}" title="Bewerken">✎</button><button class="icon-button delete-product" data-id="${product.id}" title="Verwijderen">×</button></div></td>
   </tr>`).join('') || '<tr><td colspan="5">Geen producten gevonden.</td></tr>';
   document.querySelector('#mobile-product-list').innerHTML = products.map(product => `<article class="mobile-product">
-    <p><strong>${escapeHtml(product.name)}</strong><small>${escapeHtml(categoryName(product.categoryId))} · ${product.visible ? 'Zichtbaar' : 'Verborgen'}</small></p>
+    <p><strong>${escapeHtml(product.name)}</strong><small>${escapeHtml(categoryName(product.categoryId))} · ${product.visible ? 'Zichtbaar' : 'Verborgen'}${isPopular(product.id) ? ' · Populair' : ''}</small></p>
     <span class="price-cell">${productPriceSummary(product)}</span>
-    <div class="row-actions"><button class="icon-button edit-product" data-id="${product.id}">✎</button><button class="icon-button delete-product" data-id="${product.id}">×</button></div>
+    <div class="row-actions"><button class="icon-button move-product" data-id="${product.id}" data-direction="up">↑</button><button class="icon-button move-product" data-id="${product.id}" data-direction="down">↓</button><button class="icon-button edit-product" data-id="${product.id}">✎</button><button class="icon-button delete-product" data-id="${product.id}">×</button></div>
   </article>`).join('');
   attachProductActions();
 }
@@ -103,6 +107,7 @@ function setVariantMode(active) {
 }
 
 function attachProductActions() {
+  document.querySelectorAll('.move-product').forEach(button => button.addEventListener('click', () => moveProduct(button.dataset.id, button.dataset.direction)));
   document.querySelectorAll('.edit-product').forEach(button => button.addEventListener('click', () => openProductDialog(button.dataset.id)));
   document.querySelectorAll('.delete-product').forEach(button => button.addEventListener('click', () => deleteProduct(button.dataset.id)));
 }
@@ -115,6 +120,7 @@ function openProductDialog(id = '') {
   form.elements.id.defaultValue = '';
   form.elements.categoryId.innerHTML = menuData.categories.map(category => `<option value="${category.id}">${escapeHtml(category.name)}</option>`).join('');
   form.elements.visible.checked = true;
+  form.elements.popular.checked = false;
   document.querySelector('#variant-rows').innerHTML = '';
   setVariantMode(false);
   document.querySelector('#product-message').textContent = '';
@@ -127,6 +133,7 @@ function openProductDialog(id = '') {
     form.elements.price.value = product.price.toFixed(2);
     form.elements.categoryId.value = product.categoryId;
     form.elements.visible.checked = product.visible;
+    form.elements.popular.checked = isPopular(product.id);
     if (Array.isArray(product.variants) && product.variants.length) {
       document.querySelector('#variant-rows').innerHTML = '';
       product.variants.forEach(variant => addVariantRow(variant.label, Number(variant.price).toFixed(2)));
@@ -134,6 +141,14 @@ function openProductDialog(id = '') {
     }
   }
   productDialog.showModal();
+}
+
+async function moveProduct(id, direction) {
+  await api(`/api/admin/products/${encodeURIComponent(id)}/move`, {
+    method: 'POST',
+    body: JSON.stringify({ direction })
+  });
+  await refreshData();
 }
 
 async function deleteProduct(id) {
@@ -149,9 +164,10 @@ function renderCategories() {
     const count = menuData.products.filter(product => product.categoryId === category.id).length;
     return `<article class="category-admin-card">
       <div><strong>${escapeHtml(category.name)}</strong><span>${count} ${count === 1 ? 'product' : 'producten'}</span></div>
-      <div class="row-actions"><button class="icon-button edit-category" data-id="${category.id}" title="Bewerken">✎</button><button class="icon-button delete-category" data-id="${category.id}" title="Verwijderen">×</button></div>
+      <div class="row-actions"><button class="icon-button move-category" data-id="${category.id}" data-direction="up" title="Omhoog">↑</button><button class="icon-button move-category" data-id="${category.id}" data-direction="down" title="Omlaag">↓</button><button class="icon-button edit-category" data-id="${category.id}" title="Bewerken">✎</button><button class="icon-button delete-category" data-id="${category.id}" title="Verwijderen">×</button></div>
     </article>`;
   }).join('');
+  document.querySelectorAll('.move-category').forEach(button => button.addEventListener('click', () => moveCategory(button.dataset.id, button.dataset.direction)));
   document.querySelectorAll('.edit-category').forEach(button => button.addEventListener('click', () => openCategoryDialog(button.dataset.id)));
   document.querySelectorAll('.delete-category').forEach(button => button.addEventListener('click', () => deleteCategory(button.dataset.id)));
 }
@@ -167,6 +183,14 @@ function openCategoryDialog(id = '') {
     form.elements.name.value = category.name;
   }
   categoryDialog.showModal();
+}
+
+async function moveCategory(id, direction) {
+  await api(`/api/admin/categories/${encodeURIComponent(id)}/move`, {
+    method: 'POST',
+    body: JSON.stringify({ direction })
+  });
+  await refreshData();
 }
 
 async function deleteCategory(id) {
@@ -186,6 +210,7 @@ function populateSpecial() {
   form.elements.name.value = special.name || '';
   form.elements.month.value = special.month || '';
   form.elements.description.value = special.description || '';
+  form.elements.imageUrl.value = special.imageUrl || '';
   form.elements.price.value = Number(special.price || 0).toFixed(2);
   form.elements.active.checked = special.active !== false;
 }
@@ -246,6 +271,7 @@ document.querySelector('#product-form').addEventListener('submit', async event =
         price: form.elements.price.value,
         variants,
         categoryId: form.elements.categoryId.value,
+        popular: form.elements.popular.checked,
         visible: form.elements.visible.checked
       })
     });
@@ -284,6 +310,7 @@ document.querySelector('#special-form').addEventListener('submit', async event =
       body: JSON.stringify({
         name: form.elements.name.value,
         month: form.elements.month.value,
+        imageUrl: form.elements.imageUrl.value,
         description: form.elements.description.value,
         price: form.elements.price.value,
         active: form.elements.active.checked

@@ -27,12 +27,14 @@ export type MonthlySpecial = {
   price: number;
   month: string;
   active: boolean;
+  imageUrl?: string;
 };
 
 export type MenuData = {
   categories: MenuCategory[];
   products: MenuProduct[];
   monthlySpecial: MonthlySpecial;
+  popularProductIds?: string[];
 };
 
 export type JsonBody = Record<string, unknown>;
@@ -119,6 +121,24 @@ export function normalizeVariants(value: unknown): MenuVariant[] {
       label: String(variant.label).trim(),
       price: normalizePrice(variant.price),
     }));
+}
+
+export function normalizePositions<T extends { position: number }>(items: T[]): T[] {
+  return items
+    .sort((a, b) => a.position - b.position)
+    .map((item, index) => ({ ...item, position: index + 1 }));
+}
+
+export function moveItem<T extends { id: string; position: number }>(items: T[], id: string, direction: unknown) {
+  const ordered = normalizePositions(items);
+  const index = ordered.findIndex((item) => item.id === id);
+  if (index < 0) return null;
+
+  const targetIndex = direction === 'down' ? index + 1 : index - 1;
+  if (targetIndex < 0 || targetIndex >= ordered.length) return ordered;
+
+  [ordered[index], ordered[targetIndex]] = [ordered[targetIndex], ordered[index]];
+  return normalizePositions(ordered);
 }
 
 export async function readJsonBody(request: Request): Promise<JsonBody> {

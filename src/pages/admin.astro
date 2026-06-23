@@ -8,7 +8,7 @@
   <meta name="theme-color" content="#111111">
   <title>Beheer — Plein5</title>
   <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="/styles.css?v=5">
+  <link rel="stylesheet" href="/styles.css?v=6">
 </head>
 <body class="admin-body">
   <section class="login-view" id="login-view">
@@ -78,6 +78,7 @@
           <div class="editor-grid">
             <label>Naam<input name="name" required></label>
             <label>Maand<input name="month" required placeholder="Bijvoorbeeld: juni"></label>
+            <label class="full">Afbeelding URL<input name="imageUrl" placeholder="/assets/plein5-hero.jpg"></label>
             <label class="full">Korte beschrijving<textarea name="description" rows="4" required></textarea></label>
             <label>Prijs (€)<input name="price" type="number" min="0" step="0.05" required></label>
             <label class="toggle-label">Zichtbaar op de website<input name="active" type="checkbox"><span class="toggle"></span></label>
@@ -110,6 +111,7 @@
         <div class="variant-editor-heading"><div><strong>Maten en prijzen</strong><span>Bijvoorbeeld Klein, Groot of XXL</span></div><button class="button button-muted button-compact" id="add-variant-button" type="button">+ Maat</button></div>
         <div class="variant-rows" id="variant-rows"></div>
       </section>
+      <label class="toggle-label">Populair bij Plein5<input name="popular" type="checkbox"><span class="toggle"></span></label>
       <label class="toggle-label">Zichtbaar op de website<input name="visible" type="checkbox" checked><span class="toggle"></span></label>
       <p class="form-message" id="product-message"></p>
       <div class="dialog-actions"><button type="button" class="button button-muted close-dialog">Annuleren</button><button class="button button-primary" type="submit">Opslaan</button></div>
@@ -126,6 +128,6 @@
     </form>
   </dialog>
 
-  <script is:inline src="/js/admin.js?v=5" defer></script>
+  <script is:inline src="/js/admin.js?v=6" defer></script>
 </body>
 </html>

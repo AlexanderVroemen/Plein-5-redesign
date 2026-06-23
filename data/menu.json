@@ -490,6 +490,14 @@
     "description": "Een rijkgevulde, krokante snack met een verrassende Amerikaanse twist.",
     "price": 9.9,
     "month": "Juni",
-    "active": true
-  }
+    "active": true,
+    "imageUrl": "/assets/plein5-hero.jpg"
+  },
+  "popularProductIds": [
+    "friet-mayo",
+    "friet-speciaal-bc3c",
+    "frikandel-speciaal",
+    "plein5-burger",
+    "milkshake"
+  ]
 }

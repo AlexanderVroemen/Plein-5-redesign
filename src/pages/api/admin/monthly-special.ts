@@ -18,6 +18,7 @@ export const PUT: APIRoute = async ({ locals, request }) => {
     price: normalizePrice(body.price),
     month: String(body.month || '').trim(),
     active: body.active !== false,
+    imageUrl: String(body.imageUrl || '').trim(),
   };
 
   await writeMenu(data, env);
