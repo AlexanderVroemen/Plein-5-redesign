@@ -1,26 +1,61 @@
 # Plein5 Beegden website
 
-A lightweight website and menu administration system for Plein5 Cafetaria & Broodjesbar.
+Astro website and menu administration system for Plein5 Cafetaria & Broodjesbar in Beegden, optimized for Cloudflare Workers.
 
 ## Run locally
 
 ```sh
+npm install
 npm run dev
 ```
 
-Open `http://127.0.0.1:3000`. The admin area is at `http://127.0.0.1:3000/admin`.
+Open `http://localhost:4321`. The admin area is at `http://localhost:4321/admin`.
 
-For local preview, the fallback admin password is `plein5-admin`. Always set a private password before publishing:
+For local development, the fallback admin password is:
 
-```sh
-ADMIN_PASSWORD='choose-a-strong-password' npm start
+```txt
+plein5-admin
 ```
 
-Menu changes are stored in `data/menu.json`. The example products and the monthly-special description are placeholders and should be replaced with Plein5's current menu before launch.
+Set a private password before publishing.
 
-## Deployment notes
+## Build and deploy
 
-- Requires Node.js 20 or newer and persistent disk storage for `data/menu.json`.
-- Serve the website behind HTTPS in production.
-- Set `ADMIN_PASSWORD` in the hosting provider's environment settings.
-- Replace the generated hero photograph with Plein5's own approved photography when available.
+```sh
+npm run build
+npm run deploy
+```
+
+The project uses:
+
+- Astro server output
+- `@astrojs/cloudflare`
+- Cloudflare Workers
+- Cloudflare KV for saved admin menu changes
+
+## Cloudflare setup
+
+1. Create a KV namespace for the menu.
+2. Replace the placeholder IDs in `wrangler.jsonc`:
+
+```jsonc
+"kv_namespaces": [
+  {
+    "binding": "PLEIN5_MENU",
+    "id": "your-production-kv-id",
+    "preview_id": "your-preview-kv-id"
+  }
+]
+```
+
+3. Add a secret admin password:
+
+```sh
+npx wrangler secret put ADMIN_PASSWORD
+```
+
+## Menu data
+
+`data/menu.json` is the default seed menu bundled with the Worker. Once deployed, admin changes are stored in Cloudflare KV under the `PLEIN5_MENU` binding.
+
+If KV is not configured, the site still serves the bundled menu, but saved admin edits will only persist for the local/dev runtime.

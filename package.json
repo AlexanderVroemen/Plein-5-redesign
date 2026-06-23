@@ -2,11 +2,24 @@
   "name": "plein5-beegden",
   "version": "1.0.0",
   "private": true,
-  "description": "Website and menu administration for Plein5 Beegden",
+  "description": "Astro website and Cloudflare Workers menu administration for Plein5 Beegden",
+  "type": "module",
   "scripts": {
-    "dev": "node --watch server.js",
-    "start": "node server.js",
-    "check": "node --check server.js && node --check public/js/site.js && node --check public/js/admin.js"
+    "dev": "ASTRO_TELEMETRY_DISABLED=1 astro dev",
+    "build": "ASTRO_TELEMETRY_DISABLED=1 astro build",
+    "preview": "ASTRO_TELEMETRY_DISABLED=1 astro preview",
+    "deploy": "ASTRO_TELEMETRY_DISABLED=1 astro build && wrangler deploy",
+    "check": "ASTRO_TELEMETRY_DISABLED=1 astro check && ASTRO_TELEMETRY_DISABLED=1 astro build"
+  },
+  "dependencies": {
+    "@astrojs/cloudflare": "^12.6.13",
+    "astro": "^5.18.2"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.4",
+    "@cloudflare/workers-types": "^4.20260623.0",
+    "typescript": "^5.9.3",
+    "wrangler": "^4.50.0"
   },
   "engines": {
     "node": ">=20"
