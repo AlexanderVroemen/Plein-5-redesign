@@ -31,12 +31,13 @@ The project uses:
 - Astro server output
 - `@astrojs/cloudflare`
 - Cloudflare Workers
-- Cloudflare KV for saved admin menu changes
+- Optional Cloudflare KV for saved admin menu changes
 
 ## Cloudflare setup
 
-1. Create a KV namespace for the menu.
-2. Replace the placeholder IDs in `wrangler.jsonc`:
+The public website can deploy without KV. In that mode, it uses the bundled `data/menu.json` menu.
+
+To make admin menu edits persist in production, create a KV namespace and add it to `wrangler.jsonc`:
 
 ```jsonc
 "kv_namespaces": [
@@ -48,7 +49,7 @@ The project uses:
 ]
 ```
 
-3. Add a secret admin password:
+Then add a secret admin password:
 
 ```sh
 npx wrangler secret put ADMIN_PASSWORD
@@ -56,6 +57,6 @@ npx wrangler secret put ADMIN_PASSWORD
 
 ## Menu data
 
-`data/menu.json` is the default seed menu bundled with the Worker. Once deployed, admin changes are stored in Cloudflare KV under the `PLEIN5_MENU` binding.
+`data/menu.json` is the default seed menu bundled with the Worker. If the `PLEIN5_MENU` KV binding is configured, admin changes are stored there.
 
 If KV is not configured, the site still serves the bundled menu, but saved admin edits will only persist for the local/dev runtime.

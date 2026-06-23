@@ -7,17 +7,5 @@
   },
   "observability": {
     "enabled": true
-  },
-  "kv_namespaces": [
-    {
-      "binding": "SESSION",
-      "id": "replace-with-production-session-kv-namespace-id",
-      "preview_id": "replace-with-preview-session-kv-namespace-id"
-    },
-    {
-      "binding": "PLEIN5_MENU",
-      "id": "replace-with-production-kv-namespace-id",
-      "preview_id": "replace-with-preview-kv-namespace-id"
-    }
-  ]
+  }
 }
