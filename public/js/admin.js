@@ -44,12 +44,20 @@ function categoryName(id) {
   return menuData.categories.find(category => category.id === id)?.name || 'Onbekend';
 }
 
+function categoryPosition(id) {
+  return menuData.categories.find(category => category.id === id)?.position || 9999;
+}
+
+function orderedCategories() {
+  return [...menuData.categories].sort((a, b) => a.position - b.position);
+}
+
 function filteredProducts() {
   const search = document.querySelector('#product-search').value.trim().toLowerCase();
   const category = document.querySelector('#category-filter').value;
   return [...menuData.products]
     .filter(product => (!search || product.name.toLowerCase().includes(search)) && (!category || product.categoryId === category))
-    .sort((a, b) => categoryName(a.categoryId).localeCompare(categoryName(b.categoryId), 'nl') || a.position - b.position);
+    .sort((a, b) => categoryPosition(a.categoryId) - categoryPosition(b.categoryId) || a.position - b.position || a.name.localeCompare(b.name, 'nl'));
 }
 
 function isPopular(id) {
@@ -67,7 +75,7 @@ function productPriceSummary(product) {
 function renderProducts() {
   const categoryFilter = document.querySelector('#category-filter');
   const currentFilter = categoryFilter.value;
-  categoryFilter.innerHTML = '<option value="">Alle categorieën</option>' + menuData.categories.map(category => `<option value="${category.id}">${escapeHtml(category.name)}</option>`).join('');
+  categoryFilter.innerHTML = '<option value="">Alle categorieën</option>' + orderedCategories().map(category => `<option value="${category.id}">${escapeHtml(category.name)}</option>`).join('');
   categoryFilter.value = currentFilter;
   const products = filteredProducts();
   document.querySelector('#product-table').innerHTML = products.map(product => `<tr>
@@ -118,7 +126,7 @@ function openProductDialog(id = '') {
   form.dataset.mode = 'create';
   form.elements.id.value = '';
   form.elements.id.defaultValue = '';
-  form.elements.categoryId.innerHTML = menuData.categories.map(category => `<option value="${category.id}">${escapeHtml(category.name)}</option>`).join('');
+  form.elements.categoryId.innerHTML = orderedCategories().map(category => `<option value="${category.id}">${escapeHtml(category.name)}</option>`).join('');
   form.elements.visible.checked = true;
   form.elements.popular.checked = false;
   document.querySelector('#variant-rows').innerHTML = '';
@@ -160,7 +168,7 @@ async function deleteProduct(id) {
 
 function renderCategories() {
   const grid = document.querySelector('#category-admin-grid');
-  grid.innerHTML = [...menuData.categories].sort((a, b) => a.position - b.position).map(category => {
+  grid.innerHTML = orderedCategories().map(category => {
     const count = menuData.products.filter(product => product.categoryId === category.id).length;
     return `<article class="category-admin-card">
       <div><strong>${escapeHtml(category.name)}</strong><span>${count} ${count === 1 ? 'product' : 'producten'}</span></div>
