@@ -560,7 +560,8 @@ footer {
 .mobile-actions { display: none; }
 
 .reveal-on-scroll,
-.reveal-child {
+.reveal-child,
+.reveal-fly-in {
   opacity: 0;
   transform: translateY(24px);
   transition:
@@ -570,10 +571,16 @@ footer {
   will-change: opacity, transform;
 }
 
+.reveal-fly-in {
+  transform: translate3d(-44px, 28px, 0) scale(.98);
+  transition-duration: .78s;
+}
+
 .reveal-on-scroll.is-visible,
-.reveal-child.is-visible {
+.reveal-child.is-visible,
+.reveal-fly-in.is-visible {
   opacity: 1;
-  transform: translateY(0);
+  transform: translate3d(0, 0, 0) scale(1);
 }
 
 .not-found-body {
@@ -887,7 +894,8 @@ dialog::backdrop { background: rgba(17,17,17,.62); }
   html { scroll-behavior: auto; }
   *, *::before, *::after { transition-duration: .01ms !important; }
   .reveal-on-scroll,
-  .reveal-child {
+  .reveal-child,
+  .reveal-fly-in {
     opacity: 1;
     transform: none;
   }
