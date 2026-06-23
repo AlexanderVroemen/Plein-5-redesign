@@ -1,16 +1,54 @@
 const euro = new Intl.NumberFormat('nl-NL', { style: 'currency', currency: 'EUR' });
+let activeMenuData = null;
+let selectedCategory = '';
+let menuSearch = '';
+
+const openingHours = [
+  { day: 'Zondag', open: '16:00', close: '20:00' },
+  { day: 'Maandag', open: '10:00', close: '20:00' },
+  { day: 'Dinsdag', open: '10:00', close: '20:00' },
+  { day: 'Woensdag', open: '10:00', close: '20:00' },
+  { day: 'Donderdag', open: '10:00', close: '20:00' },
+  { day: 'Vrijdag', open: '10:00', close: '20:00' },
+  { day: 'Zaterdag', open: '11:30', close: '20:00' }
+];
+
+function minutesSinceMidnight(value) {
+  const [hours, minutes] = value.split(':').map(Number);
+  return hours * 60 + minutes;
+}
+
+function nextOpenSlot(now) {
+  const today = now.getDay();
+  const currentMinutes = now.getHours() * 60 + now.getMinutes();
+  for (let offset = 0; offset < 8; offset += 1) {
+    const dayIndex = (today + offset) % 7;
+    const hours = openingHours[dayIndex];
+    if (offset === 0 && minutesSinceMidnight(hours.open) <= currentMinutes) continue;
+    return { ...hours, offset };
+  }
+  return null;
+}
 
 function updateHours() {
-  const hours = [
-    '16:00 — 20:00',
-    '10:00 — 20:00',
-    '10:00 — 20:00',
-    '10:00 — 20:00',
-    '10:00 — 20:00',
-    '10:00 — 20:00',
-    '11:30 — 20:00'
-  ];
-  document.querySelector('#today-hours').textContent = hours[new Date().getDay()];
+  const now = new Date();
+  const today = openingHours[now.getDay()];
+  const currentMinutes = now.getHours() * 60 + now.getMinutes();
+  const openMinutes = minutesSinceMidnight(today.open);
+  const closeMinutes = minutesSinceMidnight(today.close);
+  const target = document.querySelector('#today-hours');
+  const open = currentMinutes >= openMinutes && currentMinutes < closeMinutes;
+
+  if (open) {
+    target.textContent = `Nu open · tot ${today.close}`;
+    target.classList.add('is-open');
+    return;
+  }
+
+  const next = nextOpenSlot(now);
+  const label = next?.offset === 0 ? 'vandaag' : next?.offset === 1 ? 'morgen' : next?.day.toLowerCase();
+  target.textContent = next ? `Nu gesloten · open ${label} om ${next.open}` : 'Bekijk openingstijden';
+  target.classList.remove('is-open');
 }
 
 function renderSpecial(special) {
@@ -48,9 +86,22 @@ function productMarkup(product) {
   </article>`;
 }
 
-function renderMenu(data, selected = '') {
+function productMatchesSearch(product, category, query) {
+  if (!query) return true;
+  const haystack = [
+    product.name,
+    category?.name,
+    ...(Array.isArray(product.variants) ? product.variants.map(variant => variant.label) : [])
+  ].join(' ').toLowerCase();
+  return haystack.includes(query);
+}
+
+function renderMenu(data, selected = selectedCategory) {
+  activeMenuData = data;
+  selectedCategory = selected;
   const categories = [...data.categories].sort((a, b) => a.position - b.position);
   const visibleProducts = data.products.filter(product => product.visible);
+  const query = menuSearch.trim().toLowerCase();
   const tabs = document.querySelector('#category-tabs');
   tabs.innerHTML = `<button class="category-tab ${selected === '' ? 'active' : ''}" data-category="" aria-pressed="${selected === ''}">Alles</button>` + categories.map(category =>
     `<button class="category-tab ${selected === category.id ? 'active' : ''}" data-category="${category.id}" aria-pressed="${selected === category.id}">${escapeHtml(category.name)}</button>`
@@ -60,6 +111,7 @@ function renderMenu(data, selected = '') {
   const sections = shownCategories.map(category => {
     const products = visibleProducts
       .filter(product => product.categoryId === category.id)
+      .filter(product => productMatchesSearch(product, category, query))
       .sort((a, b) => a.position - b.position);
     if (!products.length) return '';
     return `<section class="menu-category ${selected ? 'full' : ''}">
@@ -67,7 +119,7 @@ function renderMenu(data, selected = '') {
       ${products.map(productMarkup).join('')}
     </section>`;
   }).join('');
-  document.querySelector('#menu-grid').innerHTML = sections || '<p class="menu-empty">Binnenkort vind je hier onze producten.</p>';
+  document.querySelector('#menu-grid').innerHTML = sections || `<p class="menu-empty">${query ? `Geen producten gevonden voor “${escapeHtml(menuSearch.trim())}”.` : 'Binnenkort vind je hier onze producten.'}</p>`;
 
   tabs.querySelectorAll('button').forEach(button => button.addEventListener('click', () => {
     renderMenu(data, button.dataset.category);
@@ -128,5 +180,9 @@ document.querySelectorAll('.main-nav a').forEach(link => link.addEventListener('
   document.querySelector('.nav-toggle').setAttribute('aria-expanded', 'false');
 }));
 document.querySelector('#year').textContent = new Date().getFullYear();
+document.querySelector('#menu-search').addEventListener('input', event => {
+  menuSearch = event.currentTarget.value;
+  if (activeMenuData) renderMenu(activeMenuData);
+});
 updateHours();
 loadMenu();
