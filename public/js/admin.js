@@ -83,12 +83,12 @@ function renderProducts() {
     <td>${escapeHtml(categoryName(product.categoryId))}</td>
     <td class="price-cell">${productPriceSummary(product)}</td>
     <td><span class="badge ${product.visible ? 'visible' : 'hidden'}">${product.visible ? 'Zichtbaar' : 'Verborgen'}</span>${isPopular(product.id) ? '<span class="badge popular">Populair</span>' : ''}</td>
-    <td><div class="row-actions"><button class="icon-button move-product" data-id="${product.id}" data-direction="up" title="Omhoog">↑</button><button class="icon-button move-product" data-id="${product.id}" data-direction="down" title="Omlaag">↓</button><button class="icon-button edit-product" data-id="${product.id}" title="Bewerken">✎</button><button class="icon-button delete-product" data-id="${product.id}" title="Verwijderen">×</button></div></td>
+    <td><div class="row-actions"><button class="icon-button edit-product" data-id="${product.id}" title="Bewerken">✎</button><button class="icon-button delete-product" data-id="${product.id}" title="Verwijderen">×</button></div></td>
   </tr>`).join('') || '<tr><td colspan="5">Geen producten gevonden.</td></tr>';
   document.querySelector('#mobile-product-list').innerHTML = products.map(product => `<article class="mobile-product">
     <p><strong>${escapeHtml(product.name)}</strong><small>${escapeHtml(categoryName(product.categoryId))} · ${product.visible ? 'Zichtbaar' : 'Verborgen'}${isPopular(product.id) ? ' · Populair' : ''}</small></p>
     <span class="price-cell">${productPriceSummary(product)}</span>
-    <div class="row-actions"><button class="icon-button move-product" data-id="${product.id}" data-direction="up">↑</button><button class="icon-button move-product" data-id="${product.id}" data-direction="down">↓</button><button class="icon-button edit-product" data-id="${product.id}">✎</button><button class="icon-button delete-product" data-id="${product.id}">×</button></div>
+    <div class="row-actions"><button class="icon-button edit-product" data-id="${product.id}">✎</button><button class="icon-button delete-product" data-id="${product.id}">×</button></div>
   </article>`).join('');
   attachProductActions();
 }
@@ -115,7 +115,6 @@ function setVariantMode(active) {
 }
 
 function attachProductActions() {
-  document.querySelectorAll('.move-product').forEach(button => button.addEventListener('click', () => moveProduct(button.dataset.id, button.dataset.direction)));
   document.querySelectorAll('.edit-product').forEach(button => button.addEventListener('click', () => openProductDialog(button.dataset.id)));
   document.querySelectorAll('.delete-product').forEach(button => button.addEventListener('click', () => deleteProduct(button.dataset.id)));
 }
@@ -151,14 +150,6 @@ function openProductDialog(id = '') {
   productDialog.showModal();
 }
 
-async function moveProduct(id, direction) {
-  await api(`/api/admin/products/${encodeURIComponent(id)}/move`, {
-    method: 'POST',
-    body: JSON.stringify({ direction })
-  });
-  await refreshData();
-}
-
 async function deleteProduct(id) {
   const product = menuData.products.find(item => item.id === id);
   if (!product || !window.confirm(`‘${product.name}’ permanent verwijderen?`)) return;
@@ -172,10 +163,9 @@ function renderCategories() {
     const count = menuData.products.filter(product => product.categoryId === category.id).length;
     return `<article class="category-admin-card">
       <div><strong>${escapeHtml(category.name)}</strong><span>${count} ${count === 1 ? 'product' : 'producten'}</span></div>
-      <div class="row-actions"><button class="icon-button move-category" data-id="${category.id}" data-direction="up" title="Omhoog">↑</button><button class="icon-button move-category" data-id="${category.id}" data-direction="down" title="Omlaag">↓</button><button class="icon-button edit-category" data-id="${category.id}" title="Bewerken">✎</button><button class="icon-button delete-category" data-id="${category.id}" title="Verwijderen">×</button></div>
+      <div class="row-actions"><button class="icon-button edit-category" data-id="${category.id}" title="Bewerken">✎</button><button class="icon-button delete-category" data-id="${category.id}" title="Verwijderen">×</button></div>
     </article>`;
   }).join('');
-  document.querySelectorAll('.move-category').forEach(button => button.addEventListener('click', () => moveCategory(button.dataset.id, button.dataset.direction)));
   document.querySelectorAll('.edit-category').forEach(button => button.addEventListener('click', () => openCategoryDialog(button.dataset.id)));
   document.querySelectorAll('.delete-category').forEach(button => button.addEventListener('click', () => deleteCategory(button.dataset.id)));
 }
@@ -191,14 +181,6 @@ function openCategoryDialog(id = '') {
     form.elements.name.value = category.name;
   }
   categoryDialog.showModal();
-}
-
-async function moveCategory(id, direction) {
-  await api(`/api/admin/categories/${encodeURIComponent(id)}/move`, {
-    method: 'POST',
-    body: JSON.stringify({ direction })
-  });
-  await refreshData();
 }
 
 async function deleteCategory(id) {
