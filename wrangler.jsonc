@@ -5,6 +5,12 @@
   "assets": {
     "directory": "./dist"
   },
+  "kv_namespaces": [
+    {
+      "binding": "PLEIN5_MENU",
+      "id": "7c75ee1cf74646758f3e754125ebe168"
+    }
+  ],
   "observability": {
     "enabled": true
   }
