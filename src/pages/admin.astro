@@ -8,7 +8,7 @@
   <meta name="theme-color" content="#111111">
   <title>Beheer — Plein5</title>
   <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="/styles.css?v=9">
+  <link rel="stylesheet" href="/styles.css?v=10">
 </head>
 <body class="admin-body">
   <section class="login-view" id="login-view">
@@ -89,6 +89,11 @@
             <label>Naam<input name="name" required></label>
             <label>Maand<input name="month" required placeholder="Bijvoorbeeld: juni"></label>
             <label class="full">Afbeelding URL<input name="imageUrl" placeholder="/assets/plein5-hero.jpg"></label>
+            <label class="image-dropzone full" id="special-image-dropzone">
+              <input name="imageFile" type="file" accept="image/png,image/jpeg,image/webp,image/gif">
+              <strong>Sleep hier een foto naartoe</strong>
+              <span>Of klik om een bestand te kiezen. JPG, PNG, WebP of GIF tot 2 MB.</span>
+            </label>
             <div class="special-image-preview full" id="special-image-preview"><span>Afbeelding preview</span></div>
             <label class="full">Korte beschrijving<textarea name="description" rows="4" required></textarea></label>
             <label>Prijs (€)<input name="price" type="number" min="0" step="0.05" required></label>
@@ -140,6 +145,6 @@
     </form>
   </dialog>
 
-  <script is:inline src="/js/admin.js?v=11" defer></script>
+  <script is:inline src="/js/admin.js?v=12" defer></script>
 </body>
 </html>

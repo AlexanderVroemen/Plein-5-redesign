@@ -4,6 +4,8 @@ const loginView = document.querySelector('#login-view');
 const adminApp = document.querySelector('#admin-app');
 const productDialog = document.querySelector('#product-dialog');
 const categoryDialog = document.querySelector('#category-dialog');
+const specialImageMaxSize = 2 * 1024 * 1024;
+const allowedSpecialImageTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
 
 async function api(url, options = {}) {
   const response = await fetch(url, {
@@ -269,6 +271,39 @@ function updateSpecialPreview() {
     : '<span>Afbeelding preview</span>';
 }
 
+function fileToDataUrl(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.addEventListener('load', () => resolve(reader.result));
+    reader.addEventListener('error', () => reject(new Error('Afbeelding kon niet gelezen worden')));
+    reader.readAsDataURL(file);
+  });
+}
+
+async function useSpecialImageFile(file) {
+  const message = document.querySelector('#special-message');
+  message.className = 'form-message';
+  message.textContent = '';
+  if (!file) return;
+  if (!allowedSpecialImageTypes.includes(file.type)) {
+    message.textContent = 'Gebruik een JPG, PNG, WebP of GIF afbeelding.';
+    return;
+  }
+  if (file.size > specialImageMaxSize) {
+    message.textContent = 'De afbeelding mag maximaal 2 MB zijn.';
+    return;
+  }
+  try {
+    const dataUrl = await fileToDataUrl(file);
+    document.querySelector('#special-form').elements.imageUrl.value = dataUrl;
+    updateSpecialPreview();
+    message.textContent = 'Afbeelding is toegevoegd. Klik nog op opslaan om hem te bewaren.';
+    message.classList.add('success');
+  } catch (error) {
+    message.textContent = error.message;
+  }
+}
+
 function renderBulkPrices() {
   const panel = document.querySelector('#bulk-price-panel');
   if (panel.hidden) return;
@@ -361,6 +396,22 @@ document.querySelectorAll('.close-dialog').forEach(button => button.addEventList
 document.querySelector('#add-category-button').addEventListener('click', () => openCategoryDialog());
 document.querySelectorAll('.close-category-dialog').forEach(button => button.addEventListener('click', () => categoryDialog.close()));
 document.querySelector('#special-form').elements.imageUrl.addEventListener('input', updateSpecialPreview);
+document.querySelector('#special-form').elements.imageFile.addEventListener('change', event => {
+  useSpecialImageFile(event.currentTarget.files?.[0]);
+  event.currentTarget.value = '';
+});
+document.querySelector('#special-image-dropzone').addEventListener('dragover', event => {
+  event.preventDefault();
+  event.currentTarget.classList.add('drag-over');
+});
+document.querySelector('#special-image-dropzone').addEventListener('dragleave', event => {
+  event.currentTarget.classList.remove('drag-over');
+});
+document.querySelector('#special-image-dropzone').addEventListener('drop', event => {
+  event.preventDefault();
+  event.currentTarget.classList.remove('drag-over');
+  useSpecialImageFile(event.dataTransfer.files?.[0]);
+});
 document.querySelector('#bulk-price-panel').addEventListener('submit', async event => {
   event.preventDefault();
   await saveBulkPrices();
