@@ -17,9 +17,6 @@ export const PUT: APIRoute = async ({ locals, params, request }) => {
   if (!body.name) return json({ error: 'Categorienaam is verplicht' }, 400);
 
   data.categories[index].name = String(body.name).trim();
-  if (Number.isFinite(Number(body.position))) {
-    data.categories[index].position = Number(body.position);
-  }
   await writeMenu(data, env);
 
   return json(data.categories[index]);

@@ -44,7 +44,6 @@ export const PUT: APIRoute = async ({ locals, params, request }) => {
     name,
     price: variants.length ? variants[0].price : normalizePrice(body.price),
     categoryId,
-    position: Number.isFinite(Number(body.position)) ? Number(body.position) : data.products[index].position,
     visible: body.visible !== false,
     archived: body.archived === true,
     ...(variants.length ? { variants } : { variants: undefined }),

@@ -65,10 +65,6 @@ function filteredProducts() {
     .sort((a, b) => categoryPosition(a.categoryId) - categoryPosition(b.categoryId) || a.position - b.position || a.name.localeCompare(b.name, 'nl'));
 }
 
-function canDragProducts() {
-  return Boolean(document.querySelector('#category-filter').value && !document.querySelector('#product-search').value.trim());
-}
-
 function isPopular(id) {
   return Array.isArray(menuData.popularProductIds) && menuData.popularProductIds.includes(id);
 }
@@ -87,24 +83,19 @@ function renderProducts() {
   categoryFilter.innerHTML = '<option value="">Alle categorieën</option>' + orderedCategories().map(category => `<option value="${category.id}">${escapeHtml(category.name)}</option>`).join('');
   categoryFilter.value = currentFilter;
   const products = filteredProducts();
-  const draggable = canDragProducts();
-  document.querySelector('#product-order-hint').textContent = draggable
-    ? 'Sleep producten omhoog of omlaag om de volgorde in deze categorie te wijzigen.'
-    : 'Kies één categorie zonder zoekterm om producten te verslepen.';
-  document.querySelector('#product-table').innerHTML = products.map(product => `<tr class="${product.archived ? 'archived-row' : ''}" data-product-id="${product.id}" draggable="${draggable && !product.archived}">
+  document.querySelector('#product-table').innerHTML = products.map(product => `<tr class="${product.archived ? 'archived-row' : ''}" data-product-id="${product.id}">
     <td class="product-name">${escapeHtml(product.name)}</td>
     <td>${escapeHtml(categoryName(product.categoryId))}</td>
     <td class="price-cell">${productPriceSummary(product)}</td>
     <td><span class="badge ${product.visible ? 'visible' : 'hidden'}">${product.visible ? 'Zichtbaar' : 'Verborgen'}</span>${product.archived ? '<span class="badge archived">Archief</span>' : ''}${isPopular(product.id) ? '<span class="badge popular">Populair</span>' : ''}</td>
     <td><div class="row-actions"><button class="icon-button edit-product" data-id="${product.id}" title="Bewerken">✎</button><button class="icon-button duplicate-product" data-id="${product.id}" title="Dupliceren">⧉</button>${product.archived ? `<button class="icon-button restore-product" data-id="${product.id}" title="Terugzetten">↺</button>` : `<button class="icon-button delete-product" data-id="${product.id}" title="Archiveren">×</button>`}</div></td>
   </tr>`).join('') || '<tr><td colspan="5">Geen producten gevonden.</td></tr>';
-  document.querySelector('#mobile-product-list').innerHTML = products.map(product => `<article class="mobile-product ${product.archived ? 'archived-row' : ''}" data-product-id="${product.id}" draggable="${draggable && !product.archived}">
+  document.querySelector('#mobile-product-list').innerHTML = products.map(product => `<article class="mobile-product ${product.archived ? 'archived-row' : ''}" data-product-id="${product.id}">
     <p><strong>${escapeHtml(product.name)}</strong><small>${escapeHtml(categoryName(product.categoryId))} · ${product.archived ? 'Archief' : product.visible ? 'Zichtbaar' : 'Verborgen'}${isPopular(product.id) ? ' · Populair' : ''}</small></p>
     <span class="price-cell">${productPriceSummary(product)}</span>
     <div class="row-actions"><button class="icon-button edit-product" data-id="${product.id}">✎</button><button class="icon-button duplicate-product" data-id="${product.id}">⧉</button>${product.archived ? `<button class="icon-button restore-product" data-id="${product.id}">↺</button>` : `<button class="icon-button delete-product" data-id="${product.id}">×</button>`}</div>
   </article>`).join('');
   attachProductActions();
-  attachProductDrag();
   renderBulkPrices();
 }
 
@@ -175,7 +166,6 @@ function productPayload(product, overrides = {}) {
     price: product.price,
     variants: Array.isArray(product.variants) ? product.variants : [],
     categoryId: product.categoryId,
-    position: product.position,
     popular: isPopular(product.id),
     visible: product.visible,
     archived: product.archived === true,
@@ -222,86 +212,17 @@ async function duplicateProduct(id) {
   await refreshData();
 }
 
-function attachProductDrag() {
-  if (!canDragProducts()) return;
-  const rows = document.querySelectorAll('#product-table tr[data-product-id], #mobile-product-list .mobile-product[data-product-id]');
-  rows.forEach(row => {
-    row.addEventListener('dragstart', event => {
-      row.classList.add('dragging');
-      event.dataTransfer.effectAllowed = 'move';
-      event.dataTransfer.setData('text/plain', row.dataset.productId);
-    });
-    row.addEventListener('dragend', () => row.classList.remove('dragging'));
-    row.addEventListener('dragover', event => event.preventDefault());
-    row.addEventListener('drop', async event => {
-      event.preventDefault();
-      const fromId = event.dataTransfer.getData('text/plain');
-      const toId = row.dataset.productId;
-      if (!fromId || !toId || fromId === toId) return;
-      await reorderProducts(fromId, toId);
-    });
-  });
-}
-
-async function reorderProducts(fromId, toId) {
-  const categoryId = document.querySelector('#category-filter').value;
-  const products = menuData.products
-    .filter(product => product.categoryId === categoryId && !product.archived)
-    .sort((a, b) => a.position - b.position || a.name.localeCompare(b.name, 'nl'));
-  const fromIndex = products.findIndex(product => product.id === fromId);
-  const toIndex = products.findIndex(product => product.id === toId);
-  if (fromIndex < 0 || toIndex < 0) return;
-  const [moved] = products.splice(fromIndex, 1);
-  products.splice(toIndex, 0, moved);
-  await Promise.all(products.map((product, index) => saveExistingProduct(product, { position: index + 1 })));
-  await refreshData();
-}
-
 function renderCategories() {
   const grid = document.querySelector('#category-admin-grid');
   grid.innerHTML = orderedCategories().map(category => {
     const count = menuData.products.filter(product => product.categoryId === category.id).length;
-    return `<article class="category-admin-card" data-category-id="${category.id}" draggable="true">
+    return `<article class="category-admin-card">
       <div><strong>${escapeHtml(category.name)}</strong><span>${count} ${count === 1 ? 'product' : 'producten'}</span></div>
       <div class="row-actions"><button class="icon-button edit-category" data-id="${category.id}" title="Bewerken">✎</button><button class="icon-button delete-category" data-id="${category.id}" title="Verwijderen">×</button></div>
     </article>`;
   }).join('');
   document.querySelectorAll('.edit-category').forEach(button => button.addEventListener('click', () => openCategoryDialog(button.dataset.id)));
   document.querySelectorAll('.delete-category').forEach(button => button.addEventListener('click', () => deleteCategory(button.dataset.id)));
-  attachCategoryDrag();
-}
-
-function attachCategoryDrag() {
-  document.querySelectorAll('.category-admin-card[data-category-id]').forEach(card => {
-    card.addEventListener('dragstart', event => {
-      card.classList.add('dragging');
-      event.dataTransfer.effectAllowed = 'move';
-      event.dataTransfer.setData('text/plain', card.dataset.categoryId);
-    });
-    card.addEventListener('dragend', () => card.classList.remove('dragging'));
-    card.addEventListener('dragover', event => event.preventDefault());
-    card.addEventListener('drop', async event => {
-      event.preventDefault();
-      const fromId = event.dataTransfer.getData('text/plain');
-      const toId = card.dataset.categoryId;
-      if (!fromId || !toId || fromId === toId) return;
-      await reorderCategories(fromId, toId);
-    });
-  });
-}
-
-async function reorderCategories(fromId, toId) {
-  const categories = orderedCategories();
-  const fromIndex = categories.findIndex(category => category.id === fromId);
-  const toIndex = categories.findIndex(category => category.id === toId);
-  if (fromIndex < 0 || toIndex < 0) return;
-  const [moved] = categories.splice(fromIndex, 1);
-  categories.splice(toIndex, 0, moved);
-  await Promise.all(categories.map((category, index) => api(`/api/admin/categories/${encodeURIComponent(category.id)}`, {
-    method: 'PUT',
-    body: JSON.stringify({ name: category.name, position: index + 1 })
-  })));
-  await refreshData();
 }
 
 function openCategoryDialog(id = '') {
@@ -465,7 +386,6 @@ document.querySelector('#product-form').addEventListener('submit', async event =
         price: form.elements.price.value,
         variants,
         categoryId: form.elements.categoryId.value,
-        position: menuData.products.find(item => item.id === id)?.position,
         popular: form.elements.popular.checked,
         visible: form.elements.visible.checked,
         archived: form.elements.archived.checked

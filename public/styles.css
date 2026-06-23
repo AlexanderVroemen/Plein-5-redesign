@@ -752,12 +752,6 @@ input:focus, select:focus, textarea:focus { border-color: var(--orange); box-sha
   border: 1px solid var(--line);
   border-radius: var(--radius-sm);
 }
-.admin-hint {
-  margin: -4px 0 16px;
-  color: var(--muted);
-  font-size: 12px;
-  font-weight: 650;
-}
 .admin-table-card, .editor-card, .bulk-price-panel {
   overflow: hidden;
   background: #fff;
@@ -799,10 +793,6 @@ table { width: 100%; border-collapse: collapse; }
 th { padding: 14px 22px; color: #8b8177; background: #fbf8f4; border-bottom: 1px solid var(--line); text-align: left; font-size: 10px; letter-spacing: .11em; text-transform: uppercase; }
 td { height: 67px; padding: 10px 22px; border-bottom: 1px solid var(--line); font-size: 13px; }
 tbody tr:last-child td { border-bottom: 0; }
-tr[draggable="true"],
-.mobile-product[draggable="true"],
-.category-admin-card[draggable="true"] { cursor: grab; }
-.dragging { opacity: .45; }
 .archived-row { opacity: .68; }
 .product-name { font-weight: 800; }
 .price-cell { font-weight: 850; font-variant-numeric: tabular-nums; }
