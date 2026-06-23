@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#111111">
+  <title>Beheer — Plein5</title>
+  <link rel="stylesheet" href="/styles.css?v=2">
+</head>
+<body class="admin-body">
+  <section class="login-view" id="login-view">
+    <form class="login-card" id="login-form">
+      <a class="brand" href="/">
+        <span class="brand-word">PLEIN</span><span class="brand-five">5</span>
+        <small>MENU BEHEER</small>
+      </a>
+      <div>
+        <p class="eyebrow">Welkom terug</p>
+        <h1>Log in om de kaart te beheren.</h1>
+      </div>
+      <label>Wachtwoord<input type="password" name="password" autocomplete="current-password" required></label>
+      <button class="button button-primary" type="submit">Inloggen</button>
+      <p class="form-message" id="login-message" role="alert"></p>
+      <a class="back-link" href="/">← Terug naar de website</a>
+    </form>
+  </section>
+
+  <div class="admin-app" id="admin-app" hidden>
+    <aside class="admin-sidebar">
+      <a class="brand admin-brand" href="/">
+        <span class="brand-word">PLEIN</span><span class="brand-five">5</span>
+        <small>MENU BEHEER</small>
+      </a>
+      <nav>
+        <button class="admin-nav active" data-view="products">Menukaart</button>
+        <button class="admin-nav" data-view="special">Snack van de maand</button>
+        <button class="admin-nav" data-view="categories">Categorieën</button>
+      </nav>
+      <div class="sidebar-bottom">
+        <a href="/" target="_blank">Bekijk website ↗</a>
+        <button id="logout-button">Uitloggen</button>
+      </div>
+    </aside>
+
+    <main class="admin-main">
+      <header class="admin-topbar">
+        <button class="admin-menu-toggle" aria-label="Beheermenu openen">☰</button>
+        <div><span>Beheer</span><strong id="view-title">Menukaart</strong></div>
+        <span class="status-dot"><i></i> Website online</span>
+      </header>
+
+      <section class="admin-view" id="products-view">
+        <div class="admin-heading">
+          <div><p class="eyebrow">Permanente kaart</p><h1>Menukaart</h1><p>Wijzig prijzen, voeg producten toe of zet ze tijdelijk uit.</p></div>
+          <button class="button button-primary" id="add-product-button">+ Product toevoegen</button>
+        </div>
+        <div class="admin-toolbar">
+          <label class="search-field"><span>⌕</span><input id="product-search" type="search" placeholder="Zoek een product"></label>
+          <select id="category-filter" aria-label="Filter op categorie"><option value="">Alle categorieën</option></select>
+        </div>
+        <div class="admin-table-card">
+          <table>
+            <thead><tr><th>Product</th><th>Categorie</th><th>Prijs</th><th>Status</th><th></th></tr></thead>
+            <tbody id="product-table"></tbody>
+          </table>
+          <div class="mobile-product-list" id="mobile-product-list"></div>
+        </div>
+      </section>
+
+      <section class="admin-view" id="special-view" hidden>
+        <div class="admin-heading">
+          <div><p class="eyebrow">Tijdelijke promotie</p><h1>Snack van de maand</h1><p>Deze snack staat los van de permanente menukaart.</p></div>
+        </div>
+        <form class="editor-card special-editor" id="special-form">
+          <div class="editor-grid">
+            <label>Naam<input name="name" required></label>
+            <label>Maand<input name="month" required placeholder="Bijvoorbeeld: juni"></label>
+            <label class="full">Korte beschrijving<textarea name="description" rows="4" required></textarea></label>
+            <label>Prijs (€)<input name="price" type="number" min="0" step="0.05" required></label>
+            <label class="toggle-label">Zichtbaar op de website<input name="active" type="checkbox"><span class="toggle"></span></label>
+          </div>
+          <div class="form-actions"><p class="form-message" id="special-message"></p><button class="button button-primary" type="submit">Wijzigingen opslaan</button></div>
+        </form>
+      </section>
+
+      <section class="admin-view" id="categories-view" hidden>
+        <div class="admin-heading">
+          <div><p class="eyebrow">Structuur</p><h1>Categorieën</h1><p>Houd de menukaart overzichtelijk voor bezoekers.</p></div>
+          <button class="button button-primary" id="add-category-button">+ Categorie toevoegen</button>
+        </div>
+        <div class="category-admin-grid" id="category-admin-grid"></div>
+      </section>
+    </main>
+  </div>
+
+  <dialog id="product-dialog">
+    <form class="dialog-card" id="product-form">
+      <div class="dialog-heading"><div><p class="eyebrow">Permanente kaart</p><h2 id="product-dialog-title">Product toevoegen</h2></div><button type="button" class="icon-button close-dialog" aria-label="Sluiten">×</button></div>
+      <input name="id" type="hidden">
+      <label>Productnaam<input name="name" required></label>
+      <div class="form-columns">
+        <label id="standard-price-field">Prijs (€)<input name="price" type="number" min="0" step="0.05" required></label>
+        <label>Categorie<select name="categoryId" required></select></label>
+      </div>
+      <label class="toggle-label variant-toggle-label">Dit product heeft maten<input name="hasVariants" type="checkbox"><span class="toggle"></span></label>
+      <section class="variant-editor" id="variant-editor" hidden>
+        <div class="variant-editor-heading"><div><strong>Maten en prijzen</strong><span>Bijvoorbeeld Klein, Groot of XXL</span></div><button class="button button-muted button-compact" id="add-variant-button" type="button">+ Maat</button></div>
+        <div class="variant-rows" id="variant-rows"></div>
+      </section>
+      <label class="toggle-label">Zichtbaar op de website<input name="visible" type="checkbox" checked><span class="toggle"></span></label>
+      <p class="form-message" id="product-message"></p>
+      <div class="dialog-actions"><button type="button" class="button button-muted close-dialog">Annuleren</button><button class="button button-primary" type="submit">Opslaan</button></div>
+    </form>
+  </dialog>
+
+  <dialog id="category-dialog">
+    <form class="dialog-card" id="category-form">
+      <div class="dialog-heading"><div><p class="eyebrow">Menustructuur</p><h2 id="category-dialog-title">Categorie toevoegen</h2></div><button type="button" class="icon-button close-category-dialog" aria-label="Sluiten">×</button></div>
+      <input name="id" type="hidden">
+      <label>Categorienaam<input name="name" required></label>
+      <p class="form-message" id="category-message"></p>
+      <div class="dialog-actions"><button type="button" class="button button-muted close-category-dialog">Annuleren</button><button class="button button-primary" type="submit">Opslaan</button></div>
+    </form>
+  </dialog>
+
+  <script src="/js/admin.js?v=3" defer></script>
+</body>
+</html>

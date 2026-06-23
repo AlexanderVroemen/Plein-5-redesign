@@ -1,0 +1,14 @@
+{
+  "name": "plein5-beegden",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Website and menu administration for Plein5 Beegden",
+  "scripts": {
+    "dev": "node --watch server.js",
+    "start": "node server.js",
+    "check": "node --check server.js && node --check public/js/site.js && node --check public/js/admin.js"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

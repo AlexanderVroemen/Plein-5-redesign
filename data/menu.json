@@ -1,0 +1,495 @@
+{
+  "categories": [
+    {
+      "id": "friet",
+      "name": "Friet",
+      "position": 1
+    },
+    {
+      "id": "snacks",
+      "name": "Snacks",
+      "position": 2
+    },
+    {
+      "id": "koude-sauzen",
+      "name": "Koude sauzen",
+      "position": 3
+    },
+    {
+      "id": "warme-sauzen",
+      "name": "Warme sauzen",
+      "position": 4
+    },
+    {
+      "id": "broodjes",
+      "name": "Broodjes",
+      "position": 5
+    },
+    {
+      "id": "burgers",
+      "name": "Burgers",
+      "position": 6
+    },
+    {
+      "id": "menus",
+      "name": "Schotels",
+      "position": 7
+    },
+    {
+      "id": "dranken",
+      "name": "Dranken & milkshakes",
+      "position": 8
+    }
+  ],
+  "products": [
+    {
+      "id": "friet-zonder",
+      "name": "Friet",
+      "price": 2.8,
+      "categoryId": "friet",
+      "position": 1,
+      "visible": true,
+      "variants": [
+        {
+          "label": "Klein",
+          "price": 2.8
+        },
+        {
+          "label": "Groot",
+          "price": 4
+        },
+        {
+          "label": "XXL",
+          "price": 5.5
+        }
+      ]
+    },
+    {
+      "id": "friet-mayo",
+      "name": "Friet mayo",
+      "price": 3.4,
+      "categoryId": "friet",
+      "position": 2,
+      "visible": true,
+      "variants": [
+        {
+          "label": "Klein",
+          "price": 3.4
+        },
+        {
+          "label": "Groot",
+          "price": 4.2
+        },
+        {
+          "label": "XXL",
+          "price": 5
+        }
+      ]
+    },
+    {
+      "id": "frikandel",
+      "name": "Frikandel",
+      "price": 2.5,
+      "categoryId": "snacks",
+      "position": 1,
+      "visible": true
+    },
+    {
+      "id": "frikandel-speciaal",
+      "name": "Frikandel speciaal",
+      "price": 3.3,
+      "categoryId": "snacks",
+      "position": 2,
+      "visible": true
+    },
+    {
+      "id": "kroket",
+      "name": "Kroket",
+      "price": 2.5,
+      "categoryId": "snacks",
+      "position": 3,
+      "visible": true
+    },
+    {
+      "id": "mayo",
+      "name": "Mayo",
+      "price": 1.6,
+      "categoryId": "koude-sauzen",
+      "position": 1,
+      "visible": true,
+      "variants": [
+        {
+          "label": "Klein",
+          "price": 1.6
+        },
+        {
+          "label": "Groot",
+          "price": 3.35
+        }
+      ]
+    },
+    {
+      "id": "curry",
+      "name": "Curry",
+      "price": 1.6,
+      "categoryId": "koude-sauzen",
+      "position": 2,
+      "visible": true,
+      "variants": [
+        {
+          "label": "Klein",
+          "price": 1.6
+        },
+        {
+          "label": "Groot",
+          "price": 3.35
+        }
+      ]
+    },
+    {
+      "id": "ketchup",
+      "name": "Ketchup",
+      "price": 1.6,
+      "categoryId": "koude-sauzen",
+      "position": 3,
+      "visible": true,
+      "variants": [
+        {
+          "label": "Klein",
+          "price": 1.6
+        },
+        {
+          "label": "Groot",
+          "price": 3.35
+        }
+      ]
+    },
+    {
+      "id": "chilisaus",
+      "name": "Chilisaus",
+      "price": 1.6,
+      "categoryId": "koude-sauzen",
+      "position": 4,
+      "visible": true,
+      "variants": [
+        {
+          "label": "Klein",
+          "price": 1.6
+        },
+        {
+          "label": "Groot",
+          "price": 3.35
+        }
+      ]
+    },
+    {
+      "id": "joppiesaus",
+      "name": "Joppiesaus",
+      "price": 1.6,
+      "categoryId": "koude-sauzen",
+      "position": 5,
+      "visible": true,
+      "variants": [
+        {
+          "label": "Klein",
+          "price": 1.6
+        },
+        {
+          "label": "Groot",
+          "price": 3.35
+        }
+      ]
+    },
+    {
+      "id": "samuraisaus",
+      "name": "Samuraisaus",
+      "price": 1.6,
+      "categoryId": "koude-sauzen",
+      "position": 6,
+      "visible": true,
+      "variants": [
+        {
+          "label": "Klein",
+          "price": 1.6
+        },
+        {
+          "label": "Groot",
+          "price": 3.35
+        }
+      ]
+    },
+    {
+      "id": "piccalilly",
+      "name": "Piccalilly",
+      "price": 1.6,
+      "categoryId": "koude-sauzen",
+      "position": 7,
+      "visible": true,
+      "variants": [
+        {
+          "label": "Klein",
+          "price": 1.6
+        },
+        {
+          "label": "Groot",
+          "price": 3.35
+        }
+      ]
+    },
+    {
+      "id": "mosterd",
+      "name": "Mosterd",
+      "price": 1.6,
+      "categoryId": "koude-sauzen",
+      "position": 8,
+      "visible": true,
+      "variants": [
+        {
+          "label": "Klein",
+          "price": 1.6
+        },
+        {
+          "label": "Groot",
+          "price": 3.35
+        }
+      ]
+    },
+    {
+      "id": "shaslicksaus",
+      "name": "Shaslicksaus",
+      "price": 1.6,
+      "categoryId": "koude-sauzen",
+      "position": 9,
+      "visible": true,
+      "variants": [
+        {
+          "label": "Klein",
+          "price": 1.6
+        },
+        {
+          "label": "Groot",
+          "price": 3.35
+        }
+      ]
+    },
+    {
+      "id": "knoflooksaus",
+      "name": "Knoflooksaus",
+      "price": 1.6,
+      "categoryId": "koude-sauzen",
+      "position": 10,
+      "visible": true,
+      "variants": [
+        {
+          "label": "Klein",
+          "price": 1.6
+        },
+        {
+          "label": "Groot",
+          "price": 3.35
+        }
+      ]
+    },
+    {
+      "id": "barbecuesaus",
+      "name": "Barbecuesaus",
+      "price": 2.2,
+      "categoryId": "koude-sauzen",
+      "position": 11,
+      "visible": true,
+      "variants": [
+        {
+          "label": "Klein",
+          "price": 2.2
+        },
+        {
+          "label": "Groot",
+          "price": 4.1
+        }
+      ]
+    },
+    {
+      "id": "satesaus",
+      "name": "Satésaus",
+      "price": 2.2,
+      "categoryId": "warme-sauzen",
+      "position": 1,
+      "visible": true,
+      "variants": [
+        {
+          "label": "Klein",
+          "price": 2.2
+        },
+        {
+          "label": "Groot",
+          "price": 4.1
+        }
+      ]
+    },
+    {
+      "id": "zuurvlees",
+      "name": "Zuurvlees",
+      "price": 4.1,
+      "categoryId": "warme-sauzen",
+      "position": 2,
+      "visible": true,
+      "variants": [
+        {
+          "label": "Groot",
+          "price": 4.1
+        }
+      ]
+    },
+    {
+      "id": "kippenragout",
+      "name": "Kippenragout",
+      "price": 4.1,
+      "categoryId": "warme-sauzen",
+      "position": 3,
+      "visible": true,
+      "variants": [
+        {
+          "label": "Groot",
+          "price": 4.1
+        }
+      ]
+    },
+    {
+      "id": "champignonsaus",
+      "name": "Champignonsaus",
+      "price": 4.1,
+      "categoryId": "warme-sauzen",
+      "position": 4,
+      "visible": true,
+      "variants": [
+        {
+          "label": "Groot",
+          "price": 4.1
+        }
+      ]
+    },
+    {
+      "id": "goulash",
+      "name": "Goulash",
+      "price": 4.1,
+      "categoryId": "warme-sauzen",
+      "position": 5,
+      "visible": true,
+      "variants": [
+        {
+          "label": "Groot",
+          "price": 4.1
+        }
+      ]
+    },
+    {
+      "id": "paprikasaus",
+      "name": "Paprikasaus (zigeunersaus)",
+      "price": 2.1,
+      "categoryId": "warme-sauzen",
+      "position": 6,
+      "visible": true,
+      "variants": [
+        {
+          "label": "Klein",
+          "price": 2.1
+        },
+        {
+          "label": "Groot",
+          "price": 4.1
+        }
+      ]
+    },
+    {
+      "id": "broodje-gezond",
+      "name": "Broodje gezond",
+      "price": 6.5,
+      "categoryId": "broodjes",
+      "position": 1,
+      "visible": true
+    },
+    {
+      "id": "broodje-carpaccio",
+      "name": "Broodje carpaccio",
+      "price": 8.5,
+      "categoryId": "broodjes",
+      "position": 2,
+      "visible": true
+    },
+    {
+      "id": "plein5-burger",
+      "name": "Plein5 burger",
+      "price": 7.5,
+      "categoryId": "burgers",
+      "position": 1,
+      "visible": true
+    },
+    {
+      "id": "frikandelmenu",
+      "name": "Frikandelmenu",
+      "price": 9.5,
+      "categoryId": "menus",
+      "position": 1,
+      "visible": true
+    },
+    {
+      "id": "milkshake",
+      "name": "Milkshake",
+      "price": 3.95,
+      "categoryId": "dranken",
+      "position": 1,
+      "visible": true,
+      "variants": [
+        {
+          "label": "Aardbei",
+          "price": 3.95
+        },
+        {
+          "label": "Nutella",
+          "price": 3.95
+        },
+        {
+          "label": "Banaan",
+          "price": 3.95
+        }
+      ]
+    },
+    {
+      "id": "frisdrank",
+      "name": "Frisdrank",
+      "price": 2.8,
+      "categoryId": "dranken",
+      "position": 2,
+      "visible": true
+    },
+    {
+      "id": "friet-speciaal-bc3c",
+      "name": "Friet speciaal",
+      "price": 3.65,
+      "categoryId": "friet",
+      "position": 3,
+      "visible": true,
+      "variants": [
+        {
+          "label": "Klein",
+          "price": 3.65
+        },
+        {
+          "label": "Groot",
+          "price": 4.45
+        },
+        {
+          "label": "XXL",
+          "price": 5.25
+        }
+      ]
+    }
+  ],
+  "monthlySpecial": {
+    "name": "Pain American",
+    "description": "Een rijkgevulde, krokante snack met een verrassende Amerikaanse twist.",
+    "price": 9.9,
+    "month": "Juni",
+    "active": true
+  }
+}
