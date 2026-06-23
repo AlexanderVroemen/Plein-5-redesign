@@ -8,7 +8,7 @@
   <meta name="theme-color" content="#111111">
   <title>Beheer — Plein5</title>
   <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="/styles.css?v=10">
+  <link rel="stylesheet" href="/styles.css?v=11">
 </head>
 <body class="admin-body">
   <section class="login-view" id="login-view">
@@ -145,6 +145,23 @@
     </form>
   </dialog>
 
-  <script is:inline src="/js/admin.js?v=12" defer></script>
+  <dialog id="image-crop-dialog">
+    <form class="dialog-card crop-dialog-card" id="image-crop-form">
+      <div class="dialog-heading">
+        <div><p class="eyebrow">Afbeelding bijsnijden</p><h2>Maak de snack goed zichtbaar.</h2></div>
+        <button type="button" class="icon-button close-crop-dialog" aria-label="Sluiten">×</button>
+      </div>
+      <canvas id="crop-canvas" width="800" height="600" aria-label="Crop voorbeeld"></canvas>
+      <div class="crop-controls">
+        <label>Zoom<input id="crop-zoom" type="range" min="1" max="2.8" step="0.01" value="1"></label>
+        <label>Links / rechts<input id="crop-x" type="range" min="-100" max="100" step="1" value="0"></label>
+        <label>Omhoog / omlaag<input id="crop-y" type="range" min="-100" max="100" step="1" value="0"></label>
+      </div>
+      <p class="crop-help">Tip: zet de zoom laag als je het hele product wilt laten zien.</p>
+      <div class="dialog-actions"><button type="button" class="button button-muted close-crop-dialog">Annuleren</button><button class="button button-primary" type="submit">Crop gebruiken</button></div>
+    </form>
+  </dialog>
+
+  <script is:inline src="/js/admin.js?v=13" defer></script>
 </body>
 </html>

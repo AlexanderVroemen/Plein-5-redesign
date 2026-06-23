@@ -4,8 +4,10 @@ const loginView = document.querySelector('#login-view');
 const adminApp = document.querySelector('#admin-app');
 const productDialog = document.querySelector('#product-dialog');
 const categoryDialog = document.querySelector('#category-dialog');
+const imageCropDialog = document.querySelector('#image-crop-dialog');
 const specialImageMaxSize = 2 * 1024 * 1024;
 const allowedSpecialImageTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+let cropImage = null;
 
 async function api(url, options = {}) {
   const response = await fetch(url, {
@@ -295,13 +297,72 @@ async function useSpecialImageFile(file) {
   }
   try {
     const dataUrl = await fileToDataUrl(file);
-    document.querySelector('#special-form').elements.imageUrl.value = dataUrl;
-    updateSpecialPreview();
-    message.textContent = 'Afbeelding is toegevoegd. Klik nog op opslaan om hem te bewaren.';
-    message.classList.add('success');
+    openImageCropper(dataUrl);
   } catch (error) {
     message.textContent = error.message;
   }
+}
+
+function loadImage(src) {
+  return new Promise((resolve, reject) => {
+    const image = new Image();
+    image.addEventListener('load', () => resolve(image));
+    image.addEventListener('error', () => reject(new Error('Afbeelding kon niet geopend worden')));
+    image.src = src;
+  });
+}
+
+async function openImageCropper(src) {
+  const message = document.querySelector('#special-message');
+  message.className = 'form-message';
+  message.textContent = '';
+  try {
+    cropImage = await loadImage(src);
+    document.querySelector('#crop-zoom').value = '1';
+    document.querySelector('#crop-x').value = '0';
+    document.querySelector('#crop-y').value = '0';
+    renderCropPreview();
+    imageCropDialog.showModal();
+  } catch (error) {
+    message.textContent = error.message;
+  }
+}
+
+function drawCroppedImage(canvas) {
+  if (!cropImage) return;
+  const context = canvas.getContext('2d');
+  const zoom = Number(document.querySelector('#crop-zoom').value);
+  const xControl = Number(document.querySelector('#crop-x').value) / 100;
+  const yControl = Number(document.querySelector('#crop-y').value) / 100;
+  const containScale = Math.min(canvas.width / cropImage.naturalWidth, canvas.height / cropImage.naturalHeight);
+  const scale = containScale * zoom;
+  const drawWidth = cropImage.naturalWidth * scale;
+  const drawHeight = cropImage.naturalHeight * scale;
+  const overflowX = Math.max(0, (drawWidth - canvas.width) / 2);
+  const overflowY = Math.max(0, (drawHeight - canvas.height) / 2);
+  const x = (canvas.width - drawWidth) / 2 - (xControl * overflowX);
+  const y = (canvas.height - drawHeight) / 2 - (yControl * overflowY);
+
+  context.fillStyle = '#111111';
+  context.fillRect(0, 0, canvas.width, canvas.height);
+  context.drawImage(cropImage, x, y, drawWidth, drawHeight);
+}
+
+function renderCropPreview() {
+  drawCroppedImage(document.querySelector('#crop-canvas'));
+}
+
+function useCroppedSpecialImage() {
+  const output = document.createElement('canvas');
+  output.width = 1200;
+  output.height = 900;
+  drawCroppedImage(output);
+  document.querySelector('#special-form').elements.imageUrl.value = output.toDataURL('image/jpeg', 0.86);
+  updateSpecialPreview();
+  imageCropDialog.close();
+  const message = document.querySelector('#special-message');
+  message.className = 'form-message success';
+  message.textContent = 'Afbeelding is gecropt. Klik nog op opslaan om hem te bewaren.';
 }
 
 function renderBulkPrices() {
@@ -395,6 +456,14 @@ document.querySelector('#product-form').elements.hasVariants.addEventListener('c
 document.querySelectorAll('.close-dialog').forEach(button => button.addEventListener('click', () => productDialog.close()));
 document.querySelector('#add-category-button').addEventListener('click', () => openCategoryDialog());
 document.querySelectorAll('.close-category-dialog').forEach(button => button.addEventListener('click', () => categoryDialog.close()));
+document.querySelectorAll('.close-crop-dialog').forEach(button => button.addEventListener('click', () => imageCropDialog.close()));
+['#crop-zoom', '#crop-x', '#crop-y'].forEach(selector => {
+  document.querySelector(selector).addEventListener('input', renderCropPreview);
+});
+document.querySelector('#image-crop-form').addEventListener('submit', event => {
+  event.preventDefault();
+  useCroppedSpecialImage();
+});
 document.querySelector('#special-form').elements.imageUrl.addEventListener('input', updateSpecialPreview);
 document.querySelector('#special-form').elements.imageFile.addEventListener('change', event => {
   useSpecialImageFile(event.currentTarget.files?.[0]);

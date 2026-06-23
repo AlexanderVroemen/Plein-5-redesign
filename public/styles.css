@@ -906,11 +906,38 @@ tbody tr:last-child td { border-bottom: 0; }
 dialog { width: min(570px, calc(100% - 32px)); padding: 0; border: 0; border-radius: var(--radius-lg); box-shadow: 0 28px 80px rgba(0,0,0,.22); background: #fff; }
 dialog::backdrop { background: rgba(17,17,17,.62); }
 .dialog-card { display: grid; gap: 22px; padding: 32px; }
+.crop-dialog-card { width: min(760px, calc(100vw - 32px)); }
 .dialog-heading { display: flex; justify-content: space-between; align-items: start; }
 .dialog-heading h2 { margin: 0; font-size: 30px; letter-spacing: -.04em; }
 .dialog-heading .eyebrow { margin-bottom: 9px; }
 .form-columns { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
 .dialog-actions { display: flex; justify-content: end; gap: 10px; padding-top: 6px; }
+#image-crop-dialog { width: min(824px, calc(100% - 32px)); }
+#crop-canvas {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  height: auto;
+  display: block;
+  background: var(--black);
+  border-radius: var(--radius-md);
+}
+.crop-controls {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+}
+.crop-controls input {
+  height: 34px;
+  padding: 0;
+  accent-color: var(--orange);
+  cursor: pointer;
+}
+.crop-help {
+  margin: -6px 0 0;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.5;
+}
 
 @media (max-width: 900px) {
   :root { --wrap: min(100% - 36px, 720px); }
@@ -1041,6 +1068,7 @@ dialog::backdrop { background: rgba(17,17,17,.62); }
   .variant-row { grid-template-columns: 1fr 1fr 34px; }
   .editor-grid .full { grid-column: 1; }
   .form-actions { align-items: stretch; flex-direction: column; }
+  .crop-controls { grid-template-columns: 1fr; }
   .category-admin-grid { grid-template-columns: 1fr; }
   .dialog-card { padding: 25px 20px; }
 }
