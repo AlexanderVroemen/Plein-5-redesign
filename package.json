@@ -6,10 +6,10 @@
   "type": "module",
   "scripts": {
     "dev": "ASTRO_TELEMETRY_DISABLED=1 astro dev",
-    "build": "ASTRO_TELEMETRY_DISABLED=1 astro build",
+    "build": "ASTRO_TELEMETRY_DISABLED=1 astro build && cp .assetsignore dist/.assetsignore",
     "preview": "ASTRO_TELEMETRY_DISABLED=1 astro preview",
-    "deploy": "ASTRO_TELEMETRY_DISABLED=1 astro build && wrangler deploy",
-    "check": "ASTRO_TELEMETRY_DISABLED=1 astro check && ASTRO_TELEMETRY_DISABLED=1 astro build"
+    "deploy": "npm run build && wrangler deploy",
+    "check": "ASTRO_TELEMETRY_DISABLED=1 astro check && npm run build"
   },
   "dependencies": {
     "@astrojs/cloudflare": "^12.6.13",
