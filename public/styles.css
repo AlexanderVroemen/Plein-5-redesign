@@ -27,6 +27,7 @@ body {
   background: var(--paper);
   font-family: "Avenir Next", Avenir, "Segoe UI", system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
+  overflow-x: clip;
 }
 button, input, select, textarea { font: inherit; }
 button, a { -webkit-tap-highlight-color: transparent; }
@@ -574,6 +575,13 @@ footer {
 .reveal-fly-in {
   transform: translate3d(-44px, 28px, 0) scale(.98);
   transition-duration: .78s;
+}
+
+.special-card.reveal-fly-in {
+  transform: translate3d(-72vw, 0, 0) scale(.98);
+  transition:
+    opacity .78s ease,
+    transform .92s cubic-bezier(.16, 1, .3, 1);
 }
 
 .reveal-on-scroll.is-visible,
