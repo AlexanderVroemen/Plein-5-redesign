@@ -1,4 +1,5 @@
 const euro = new Intl.NumberFormat('nl-NL', { style: 'currency', currency: 'EUR' });
+const dateFormat = new Intl.DateTimeFormat('nl-NL', { day: 'numeric', month: 'long', year: 'numeric' });
 let activeMenuData = null;
 let selectedCategory = '';
 let menuSearch = '';
@@ -153,6 +154,15 @@ function renderPopular(data) {
   }).join('');
 }
 
+function renderLastUpdated(value) {
+  const target = document.querySelector('#menu-updated');
+  if (!target) return;
+  const date = value ? new Date(value) : null;
+  target.textContent = date && !Number.isNaN(date.getTime())
+    ? `Menukaart laatst bijgewerkt: ${dateFormat.format(date)}.`
+    : 'Vraag ons gerust naar allergenen.';
+}
+
 function escapeHtml(value) {
   return String(value).replace(/[&<>'"]/g, character => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' })[character]);
 }
@@ -164,9 +174,11 @@ async function loadMenu() {
     const data = await response.json();
     renderSpecial(data.monthlySpecial);
     renderPopular(data);
+    renderLastUpdated(data.lastUpdated);
     renderMenu(data);
   } catch {
     document.querySelector('#menu-grid').innerHTML = '<p class="menu-empty">De menukaart kan nu niet worden geladen. Bel ons gerust voor het actuele aanbod.</p>';
+    renderLastUpdated();
   }
 }
 

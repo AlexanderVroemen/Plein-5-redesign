@@ -35,6 +35,7 @@ export type MenuData = {
   products: MenuProduct[];
   monthlySpecial: MonthlySpecial;
   popularProductIds?: string[];
+  lastUpdated?: string;
 };
 
 export type JsonBody = Record<string, unknown>;
@@ -75,6 +76,7 @@ export async function readMenu(runtimeEnv?: Env): Promise<MenuData> {
 
 export async function writeMenu(menu: MenuData, runtimeEnv?: Env): Promise<void> {
   const normalized = cloneMenu(menu);
+  normalized.lastUpdated = new Date().toISOString();
   const kv = menuKV(runtimeEnv);
 
   if (kv) {
