@@ -3,6 +3,7 @@ const dateFormat = new Intl.DateTimeFormat('nl-NL', { day: 'numeric', month: 'lo
 let activeMenuData = null;
 let selectedCategory = '';
 let menuSearch = '';
+let revealObserver = null;
 
 const openingHours = [
   { day: 'Zondag', open: '16:00', close: '20:00' },
@@ -126,6 +127,7 @@ function renderMenu(data, selected = selectedCategory) {
     renderMenu(data, button.dataset.category);
     document.querySelector('#menu').scrollIntoView({ block: 'start' });
   }));
+  observeRevealElements(document.querySelectorAll('.menu-category'));
 }
 
 function renderPopular(data) {
@@ -152,6 +154,41 @@ function renderPopular(data) {
       <strong>${Array.isArray(product.variants) && product.variants.length ? `vanaf ${euro.format(product.price)}` : euro.format(product.price)}</strong>
     </article>`;
   }).join('');
+  observeRevealElements(grid.querySelectorAll('.popular-card'));
+}
+
+function observeRevealElements(elements) {
+  if (!revealObserver) return;
+  elements.forEach((element, index) => {
+    element.classList.add('reveal-on-scroll');
+    element.style.setProperty('--reveal-delay', `${Math.min(index * 55, 220)}ms`);
+    revealObserver.observe(element);
+  });
+}
+
+function initScrollReveals() {
+  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const elements = document.querySelectorAll('.reveal-on-scroll, .reveal-child');
+
+  if (prefersReducedMotion || !('IntersectionObserver' in window)) {
+    elements.forEach(element => element.classList.add('is-visible'));
+    return;
+  }
+
+  revealObserver = new IntersectionObserver((entries, observer) => {
+    entries.forEach(entry => {
+      if (!entry.isIntersecting) return;
+      entry.target.classList.add('is-visible');
+      observer.unobserve(entry.target);
+    });
+  }, { rootMargin: '0px 0px -12% 0px', threshold: 0.12 });
+
+  elements.forEach((element, index) => {
+    if (element.classList.contains('reveal-child')) {
+      element.style.setProperty('--reveal-delay', `${Math.min(index * 70, 220)}ms`);
+    }
+    revealObserver.observe(element);
+  });
 }
 
 function renderLastUpdated(value) {
@@ -197,4 +234,5 @@ document.querySelector('#menu-search').addEventListener('input', event => {
   if (activeMenuData) renderMenu(activeMenuData);
 });
 updateHours();
+initScrollReveals();
 loadMenu();
