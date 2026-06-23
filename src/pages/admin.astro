@@ -8,7 +8,7 @@
   <meta name="theme-color" content="#111111">
   <title>Beheer — Plein5</title>
   <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="/styles.css?v=6">
+  <link rel="stylesheet" href="/styles.css?v=8">
 </head>
 <body class="admin-body">
   <section class="login-view" id="login-view">
@@ -60,9 +60,20 @@
         <div class="admin-toolbar">
           <label class="search-field"><span>⌕</span><input id="product-search" type="search" placeholder="Zoek een product"></label>
           <select id="category-filter" aria-label="Filter op categorie"><option value="">Alle categorieën</option></select>
+          <button class="button button-muted" id="bulk-prices-button" type="button">Bulk prijzen</button>
+          <label class="toggle-label compact-toggle">Archief tonen<input id="show-archived-products" type="checkbox"><span class="toggle"></span></label>
         </div>
+        <p class="admin-hint" id="product-order-hint">Kies één categorie zonder zoekterm om producten te verslepen.</p>
+        <form class="bulk-price-panel" id="bulk-price-panel" hidden>
+          <div class="bulk-price-heading">
+            <div><strong>Bulk prijzen aanpassen</strong><span>Wijzig meerdere producten tegelijk en sla alles in één keer op.</span></div>
+            <button class="icon-button" id="close-bulk-prices" type="button" aria-label="Sluiten">×</button>
+          </div>
+          <div class="bulk-price-list" id="bulk-price-list"></div>
+          <div class="form-actions"><p class="form-message" id="bulk-price-message"></p><button class="button button-primary" type="submit">Prijzen opslaan</button></div>
+        </form>
         <div class="admin-table-card">
-          <table>
+          <table class="products-table">
             <thead><tr><th>Product</th><th>Categorie</th><th>Prijs</th><th>Status</th><th></th></tr></thead>
             <tbody id="product-table"></tbody>
           </table>
@@ -79,6 +90,7 @@
             <label>Naam<input name="name" required></label>
             <label>Maand<input name="month" required placeholder="Bijvoorbeeld: juni"></label>
             <label class="full">Afbeelding URL<input name="imageUrl" placeholder="/assets/plein5-hero.jpg"></label>
+            <div class="special-image-preview full" id="special-image-preview"><span>Afbeelding preview</span></div>
             <label class="full">Korte beschrijving<textarea name="description" rows="4" required></textarea></label>
             <label>Prijs (€)<input name="price" type="number" min="0" step="0.05" required></label>
             <label class="toggle-label">Zichtbaar op de website<input name="active" type="checkbox"><span class="toggle"></span></label>
@@ -113,6 +125,7 @@
       </section>
       <label class="toggle-label">Populair bij Plein5<input name="popular" type="checkbox"><span class="toggle"></span></label>
       <label class="toggle-label">Zichtbaar op de website<input name="visible" type="checkbox" checked><span class="toggle"></span></label>
+      <label class="toggle-label">In archief<input name="archived" type="checkbox"><span class="toggle"></span></label>
       <p class="form-message" id="product-message"></p>
       <div class="dialog-actions"><button type="button" class="button button-muted close-dialog">Annuleren</button><button class="button button-primary" type="submit">Opslaan</button></div>
     </form>
@@ -128,6 +141,6 @@
     </form>
   </dialog>
 
-  <script is:inline src="/js/admin.js?v=8" defer></script>
+  <script is:inline src="/js/admin.js?v=10" defer></script>
 </body>
 </html>

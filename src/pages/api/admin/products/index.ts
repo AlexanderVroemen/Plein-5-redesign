@@ -32,6 +32,7 @@ export const POST: APIRoute = async ({ locals, request }) => {
     categoryId,
     position: data.products.filter((item) => item.categoryId === categoryId).length + 1,
     visible: body.visible !== false,
+    archived: false,
     ...(variants.length ? { variants } : {}),
   };
 

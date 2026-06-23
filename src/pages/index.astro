@@ -12,7 +12,7 @@
   <meta property="og:image" content="/assets/plein5-hero.jpg">
   <title>Plein5 — Cafetaria & Broodjesbar Beegden</title>
   <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="/styles.css?v=13">
+  <link rel="stylesheet" href="/styles.css?v=16">
 </head>
 <body>
   <a class="skip-link" href="#main">Direct naar inhoud</a>
@@ -40,6 +40,10 @@
         <p class="eyebrow light">Cafetaria &amp; broodjesbar · Beegden</p>
         <h1>Goed eten.<br><span>Gewoon op het plein.</span></h1>
         <p class="hero-copy">Vers, royaal en met plezier gemaakt. Bel je afhaalbestelling door of kom langs om bij ons te eten.</p>
+        <a class="monthly-teaser" id="monthly-teaser" href="#special-section" hidden>
+          <span>Snack van de maand</span>
+          <strong id="monthly-teaser-name">Bekijk de special</strong>
+        </a>
         <div class="hero-actions">
           <a class="button button-primary" href="#menu">Bekijk menukaart</a>
           <a class="button button-ghost" href="tel:+31625055162">
@@ -177,9 +181,9 @@
 
   <nav class="mobile-actions" aria-label="Snelle acties">
     <a href="#menu">Menukaart</a>
-    <a href="tel:+31625055162">Bel voor afhalen</a>
+    <a class="mobile-call-action" href="tel:+31625055162"><span data-hours-status>Openingstijden laden…</span><strong>Bel voor afhalen</strong></a>
   </nav>
 
-  <script is:inline src="/js/site.js?v=14" defer></script>
+  <script is:inline src="/js/site.js?v=16" defer></script>
 </body>
 </html>

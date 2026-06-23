@@ -12,6 +12,7 @@ export type MenuProduct = {
   categoryId: string;
   position: number;
   visible: boolean;
+  archived?: boolean;
   variants?: MenuVariant[];
 };
 

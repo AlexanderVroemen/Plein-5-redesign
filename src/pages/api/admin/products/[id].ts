@@ -13,7 +13,8 @@ export const DELETE: APIRoute = async ({ locals, params, request }) => {
   const index = data.products.findIndex((item) => item.id === params.id);
   if (index < 0) return json({ error: 'Product niet gevonden' }, 404);
 
-  data.products.splice(index, 1);
+  data.products[index].archived = true;
+  data.products[index].visible = false;
   data.popularProductIds = (data.popularProductIds || []).filter((id) => id !== params.id);
   await writeMenu(data, env);
 
@@ -43,7 +44,9 @@ export const PUT: APIRoute = async ({ locals, params, request }) => {
     name,
     price: variants.length ? variants[0].price : normalizePrice(body.price),
     categoryId,
+    position: Number.isFinite(Number(body.position)) ? Number(body.position) : data.products[index].position,
     visible: body.visible !== false,
+    archived: body.archived === true,
     ...(variants.length ? { variants } : { variants: undefined }),
   };
 

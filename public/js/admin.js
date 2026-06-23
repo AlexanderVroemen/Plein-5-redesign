@@ -55,9 +55,18 @@ function orderedCategories() {
 function filteredProducts() {
   const search = document.querySelector('#product-search').value.trim().toLowerCase();
   const category = document.querySelector('#category-filter').value;
+  const showArchived = document.querySelector('#show-archived-products')?.checked;
   return [...menuData.products]
-    .filter(product => (!search || product.name.toLowerCase().includes(search)) && (!category || product.categoryId === category))
+    .filter(product =>
+      (showArchived || !product.archived)
+      && (!search || product.name.toLowerCase().includes(search))
+      && (!category || product.categoryId === category)
+    )
     .sort((a, b) => categoryPosition(a.categoryId) - categoryPosition(b.categoryId) || a.position - b.position || a.name.localeCompare(b.name, 'nl'));
+}
+
+function canDragProducts() {
+  return Boolean(document.querySelector('#category-filter').value && !document.querySelector('#product-search').value.trim());
 }
 
 function isPopular(id) {
@@ -78,19 +87,25 @@ function renderProducts() {
   categoryFilter.innerHTML = '<option value="">Alle categorieën</option>' + orderedCategories().map(category => `<option value="${category.id}">${escapeHtml(category.name)}</option>`).join('');
   categoryFilter.value = currentFilter;
   const products = filteredProducts();
-  document.querySelector('#product-table').innerHTML = products.map(product => `<tr>
+  const draggable = canDragProducts();
+  document.querySelector('#product-order-hint').textContent = draggable
+    ? 'Sleep producten omhoog of omlaag om de volgorde in deze categorie te wijzigen.'
+    : 'Kies één categorie zonder zoekterm om producten te verslepen.';
+  document.querySelector('#product-table').innerHTML = products.map(product => `<tr class="${product.archived ? 'archived-row' : ''}" data-product-id="${product.id}" draggable="${draggable && !product.archived}">
     <td class="product-name">${escapeHtml(product.name)}</td>
     <td>${escapeHtml(categoryName(product.categoryId))}</td>
     <td class="price-cell">${productPriceSummary(product)}</td>
-    <td><span class="badge ${product.visible ? 'visible' : 'hidden'}">${product.visible ? 'Zichtbaar' : 'Verborgen'}</span>${isPopular(product.id) ? '<span class="badge popular">Populair</span>' : ''}</td>
-    <td><div class="row-actions"><button class="icon-button edit-product" data-id="${product.id}" title="Bewerken">✎</button><button class="icon-button delete-product" data-id="${product.id}" title="Verwijderen">×</button></div></td>
+    <td><span class="badge ${product.visible ? 'visible' : 'hidden'}">${product.visible ? 'Zichtbaar' : 'Verborgen'}</span>${product.archived ? '<span class="badge archived">Archief</span>' : ''}${isPopular(product.id) ? '<span class="badge popular">Populair</span>' : ''}</td>
+    <td><div class="row-actions"><button class="icon-button edit-product" data-id="${product.id}" title="Bewerken">✎</button><button class="icon-button duplicate-product" data-id="${product.id}" title="Dupliceren">⧉</button>${product.archived ? `<button class="icon-button restore-product" data-id="${product.id}" title="Terugzetten">↺</button>` : `<button class="icon-button delete-product" data-id="${product.id}" title="Archiveren">×</button>`}</div></td>
   </tr>`).join('') || '<tr><td colspan="5">Geen producten gevonden.</td></tr>';
-  document.querySelector('#mobile-product-list').innerHTML = products.map(product => `<article class="mobile-product">
-    <p><strong>${escapeHtml(product.name)}</strong><small>${escapeHtml(categoryName(product.categoryId))} · ${product.visible ? 'Zichtbaar' : 'Verborgen'}${isPopular(product.id) ? ' · Populair' : ''}</small></p>
+  document.querySelector('#mobile-product-list').innerHTML = products.map(product => `<article class="mobile-product ${product.archived ? 'archived-row' : ''}" data-product-id="${product.id}" draggable="${draggable && !product.archived}">
+    <p><strong>${escapeHtml(product.name)}</strong><small>${escapeHtml(categoryName(product.categoryId))} · ${product.archived ? 'Archief' : product.visible ? 'Zichtbaar' : 'Verborgen'}${isPopular(product.id) ? ' · Populair' : ''}</small></p>
     <span class="price-cell">${productPriceSummary(product)}</span>
-    <div class="row-actions"><button class="icon-button edit-product" data-id="${product.id}">✎</button><button class="icon-button delete-product" data-id="${product.id}">×</button></div>
+    <div class="row-actions"><button class="icon-button edit-product" data-id="${product.id}">✎</button><button class="icon-button duplicate-product" data-id="${product.id}">⧉</button>${product.archived ? `<button class="icon-button restore-product" data-id="${product.id}">↺</button>` : `<button class="icon-button delete-product" data-id="${product.id}">×</button>`}</div>
   </article>`).join('');
   attachProductActions();
+  attachProductDrag();
+  renderBulkPrices();
 }
 
 function addVariantRow(label = '', price = '') {
@@ -116,7 +131,9 @@ function setVariantMode(active) {
 
 function attachProductActions() {
   document.querySelectorAll('.edit-product').forEach(button => button.addEventListener('click', () => openProductDialog(button.dataset.id)));
-  document.querySelectorAll('.delete-product').forEach(button => button.addEventListener('click', () => deleteProduct(button.dataset.id)));
+  document.querySelectorAll('.duplicate-product').forEach(button => button.addEventListener('click', () => duplicateProduct(button.dataset.id)));
+  document.querySelectorAll('.delete-product').forEach(button => button.addEventListener('click', () => archiveProduct(button.dataset.id)));
+  document.querySelectorAll('.restore-product').forEach(button => button.addEventListener('click', () => restoreProduct(button.dataset.id)));
 }
 
 function openProductDialog(id = '') {
@@ -128,6 +145,7 @@ function openProductDialog(id = '') {
   form.elements.categoryId.innerHTML = orderedCategories().map(category => `<option value="${category.id}">${escapeHtml(category.name)}</option>`).join('');
   form.elements.visible.checked = true;
   form.elements.popular.checked = false;
+  form.elements.archived.checked = false;
   document.querySelector('#variant-rows').innerHTML = '';
   setVariantMode(false);
   document.querySelector('#product-message').textContent = '';
@@ -141,6 +159,7 @@ function openProductDialog(id = '') {
     form.elements.categoryId.value = product.categoryId;
     form.elements.visible.checked = product.visible;
     form.elements.popular.checked = isPopular(product.id);
+    form.elements.archived.checked = product.archived === true;
     if (Array.isArray(product.variants) && product.variants.length) {
       document.querySelector('#variant-rows').innerHTML = '';
       product.variants.forEach(variant => addVariantRow(variant.label, Number(variant.price).toFixed(2)));
@@ -150,10 +169,91 @@ function openProductDialog(id = '') {
   productDialog.showModal();
 }
 
-async function deleteProduct(id) {
+function productPayload(product, overrides = {}) {
+  return {
+    name: product.name,
+    price: product.price,
+    variants: Array.isArray(product.variants) ? product.variants : [],
+    categoryId: product.categoryId,
+    position: product.position,
+    popular: isPopular(product.id),
+    visible: product.visible,
+    archived: product.archived === true,
+    ...overrides
+  };
+}
+
+async function saveExistingProduct(product, overrides = {}) {
+  return api(`/api/admin/products/${encodeURIComponent(product.id)}`, {
+    method: 'PUT',
+    body: JSON.stringify(productPayload(product, overrides))
+  });
+}
+
+async function archiveProduct(id) {
   const product = menuData.products.find(item => item.id === id);
-  if (!product || !window.confirm(`‘${product.name}’ permanent verwijderen?`)) return;
+  if (!product || !window.confirm(`‘${product.name}’ archiveren? Je kunt het later terugzetten.`)) return;
   await api(`/api/admin/products/${encodeURIComponent(id)}`, { method: 'DELETE' });
+  await refreshData();
+}
+
+async function restoreProduct(id) {
+  const product = menuData.products.find(item => item.id === id);
+  if (!product) return;
+  await saveExistingProduct(product, { archived: false, visible: true });
+  await refreshData();
+}
+
+async function duplicateProduct(id) {
+  const product = menuData.products.find(item => item.id === id);
+  if (!product) return;
+  const copyName = `${product.name} kopie`;
+  await api('/api/admin/products', {
+    method: 'POST',
+    body: JSON.stringify({
+      name: copyName,
+      price: product.price,
+      variants: Array.isArray(product.variants) ? product.variants : [],
+      categoryId: product.categoryId,
+      popular: false,
+      visible: product.visible && !product.archived
+    })
+  });
+  await refreshData();
+}
+
+function attachProductDrag() {
+  if (!canDragProducts()) return;
+  const rows = document.querySelectorAll('#product-table tr[data-product-id], #mobile-product-list .mobile-product[data-product-id]');
+  rows.forEach(row => {
+    row.addEventListener('dragstart', event => {
+      row.classList.add('dragging');
+      event.dataTransfer.effectAllowed = 'move';
+      event.dataTransfer.setData('text/plain', row.dataset.productId);
+    });
+    row.addEventListener('dragend', () => row.classList.remove('dragging'));
+    row.addEventListener('dragover', event => event.preventDefault());
+    row.addEventListener('drop', async event => {
+      event.preventDefault();
+      const fromId = event.dataTransfer.getData('text/plain');
+      const toId = row.dataset.productId;
+      if (!fromId || !toId || fromId === toId) return;
+      await reorderProducts(fromId, toId);
+    });
+  });
+}
+
+async function reorderProducts(fromId, toId) {
+  const categoryId = document.querySelector('#category-filter').value;
+  const products = menuData.products
+    .filter(product => product.categoryId === categoryId && !product.archived)
+    .sort((a, b) => a.position - b.position || a.name.localeCompare(b.name, 'nl'));
+  const fromIndex = products.findIndex(product => product.id === fromId);
+  const toIndex = products.findIndex(product => product.id === toId);
+  if (fromIndex < 0 || toIndex < 0) return;
+  const [moved] = products.splice(fromIndex, 1);
+  products.splice(toIndex, 0, moved);
+  await Promise.all(products.map((product, index) => saveExistingProduct(product, { position: index + 1 })));
   await refreshData();
 }
 
@@ -161,13 +261,47 @@ function renderCategories() {
   const grid = document.querySelector('#category-admin-grid');
   grid.innerHTML = orderedCategories().map(category => {
     const count = menuData.products.filter(product => product.categoryId === category.id).length;
-    return `<article class="category-admin-card">
+    return `<article class="category-admin-card" data-category-id="${category.id}" draggable="true">
       <div><strong>${escapeHtml(category.name)}</strong><span>${count} ${count === 1 ? 'product' : 'producten'}</span></div>
       <div class="row-actions"><button class="icon-button edit-category" data-id="${category.id}" title="Bewerken">✎</button><button class="icon-button delete-category" data-id="${category.id}" title="Verwijderen">×</button></div>
     </article>`;
   }).join('');
   document.querySelectorAll('.edit-category').forEach(button => button.addEventListener('click', () => openCategoryDialog(button.dataset.id)));
   document.querySelectorAll('.delete-category').forEach(button => button.addEventListener('click', () => deleteCategory(button.dataset.id)));
+  attachCategoryDrag();
+}
+
+function attachCategoryDrag() {
+  document.querySelectorAll('.category-admin-card[data-category-id]').forEach(card => {
+    card.addEventListener('dragstart', event => {
+      card.classList.add('dragging');
+      event.dataTransfer.effectAllowed = 'move';
+      event.dataTransfer.setData('text/plain', card.dataset.categoryId);
+    });
+    card.addEventListener('dragend', () => card.classList.remove('dragging'));
+    card.addEventListener('dragover', event => event.preventDefault());
+    card.addEventListener('drop', async event => {
+      event.preventDefault();
+      const fromId = event.dataTransfer.getData('text/plain');
+      const toId = card.dataset.categoryId;
+      if (!fromId || !toId || fromId === toId) return;
+      await reorderCategories(fromId, toId);
+    });
+  });
+}
+
+async function reorderCategories(fromId, toId) {
+  const categories = orderedCategories();
+  const fromIndex = categories.findIndex(category => category.id === fromId);
+  const toIndex = categories.findIndex(category => category.id === toId);
+  if (fromIndex < 0 || toIndex < 0) return;
+  const [moved] = categories.splice(fromIndex, 1);
+  categories.splice(toIndex, 0, moved);
+  await Promise.all(categories.map((category, index) => api(`/api/admin/categories/${encodeURIComponent(category.id)}`, {
+    method: 'PUT',
+    body: JSON.stringify({ name: category.name, position: index + 1 })
+  })));
+  await refreshData();
 }
 
 function openCategoryDialog(id = '') {
@@ -203,6 +337,62 @@ function populateSpecial() {
   form.elements.imageUrl.value = special.imageUrl || '';
   form.elements.price.value = Number(special.price || 0).toFixed(2);
   form.elements.active.checked = special.active !== false;
+  updateSpecialPreview();
+}
+
+function updateSpecialPreview() {
+  const value = document.querySelector('#special-form').elements.imageUrl.value.trim();
+  const preview = document.querySelector('#special-image-preview');
+  preview.innerHTML = value
+    ? `<img src="${escapeHtml(value)}" alt=""><span>Afbeelding preview</span>`
+    : '<span>Afbeelding preview</span>';
+}
+
+function renderBulkPrices() {
+  const panel = document.querySelector('#bulk-price-panel');
+  if (panel.hidden) return;
+  const products = filteredProducts().filter(product => !product.archived);
+  const list = document.querySelector('#bulk-price-list');
+  list.innerHTML = products.map(product => {
+    if (Array.isArray(product.variants) && product.variants.length) {
+      return `<section class="bulk-price-row" data-product-id="${product.id}">
+        <strong>${escapeHtml(product.name)}</strong>
+        <div class="bulk-variant-grid">
+          ${product.variants.map((variant, index) => `<label>${escapeHtml(variant.label)}<input type="number" min="0" step="0.05" value="${Number(variant.price).toFixed(2)}" data-variant-index="${index}"></label>`).join('')}
+        </div>
+      </section>`;
+    }
+    return `<section class="bulk-price-row" data-product-id="${product.id}">
+      <strong>${escapeHtml(product.name)}</strong>
+      <label>Prijs<input type="number" min="0" step="0.05" value="${Number(product.price).toFixed(2)}"></label>
+    </section>`;
+  }).join('') || '<p class="menu-empty">Geen producten om prijzen voor te wijzigen.</p>';
+}
+
+async function saveBulkPrices() {
+  const message = document.querySelector('#bulk-price-message');
+  message.textContent = '';
+  const rows = [...document.querySelectorAll('.bulk-price-row')];
+  try {
+    await Promise.all(rows.map(row => {
+      const product = menuData.products.find(item => item.id === row.dataset.productId);
+      if (!product) return Promise.resolve();
+      if (Array.isArray(product.variants) && product.variants.length) {
+        const variants = product.variants.map((variant, index) => ({
+          label: variant.label,
+          price: row.querySelector(`[data-variant-index="${index}"]`).value
+        }));
+        return saveExistingProduct(product, { variants, price: variants[0]?.price || product.price });
+      }
+      return saveExistingProduct(product, { price: row.querySelector('input').value });
+    }));
+    message.textContent = 'Prijzen zijn opgeslagen.';
+    message.classList.add('success');
+    await refreshData();
+  } catch (error) {
+    message.classList.remove('success');
+    message.textContent = error.message;
+  }
 }
 
 function showView(name) {
@@ -234,12 +424,26 @@ document.querySelectorAll('.admin-nav').forEach(button => button.addEventListene
 document.querySelector('.admin-menu-toggle').addEventListener('click', () => document.querySelector('.admin-sidebar').classList.toggle('open'));
 document.querySelector('#product-search').addEventListener('input', renderProducts);
 document.querySelector('#category-filter').addEventListener('change', renderProducts);
+document.querySelector('#show-archived-products').addEventListener('change', renderProducts);
+document.querySelector('#bulk-prices-button').addEventListener('click', () => {
+  document.querySelector('#bulk-price-panel').hidden = false;
+  renderBulkPrices();
+});
+document.querySelector('#close-bulk-prices').addEventListener('click', () => {
+  document.querySelector('#bulk-price-panel').hidden = true;
+  document.querySelector('#bulk-price-message').textContent = '';
+});
 document.querySelector('#add-product-button').addEventListener('click', () => openProductDialog());
 document.querySelector('#add-variant-button').addEventListener('click', () => addVariantRow());
 document.querySelector('#product-form').elements.hasVariants.addEventListener('change', event => setVariantMode(event.currentTarget.checked));
 document.querySelectorAll('.close-dialog').forEach(button => button.addEventListener('click', () => productDialog.close()));
 document.querySelector('#add-category-button').addEventListener('click', () => openCategoryDialog());
 document.querySelectorAll('.close-category-dialog').forEach(button => button.addEventListener('click', () => categoryDialog.close()));
+document.querySelector('#special-form').elements.imageUrl.addEventListener('input', updateSpecialPreview);
+document.querySelector('#bulk-price-panel').addEventListener('submit', async event => {
+  event.preventDefault();
+  await saveBulkPrices();
+});
 
 document.querySelector('#product-form').addEventListener('submit', async event => {
   event.preventDefault();
@@ -261,8 +465,10 @@ document.querySelector('#product-form').addEventListener('submit', async event =
         price: form.elements.price.value,
         variants,
         categoryId: form.elements.categoryId.value,
+        position: menuData.products.find(item => item.id === id)?.position,
         popular: form.elements.popular.checked,
-        visible: form.elements.visible.checked
+        visible: form.elements.visible.checked,
+        archived: form.elements.archived.checked
       })
     });
     productDialog.close();

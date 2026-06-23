@@ -40,22 +40,31 @@ function updateHours() {
   const closeMinutes = minutesSinceMidnight(today.close);
   const target = document.querySelector('#today-hours');
   const open = currentMinutes >= openMinutes && currentMinutes < closeMinutes;
+  let statusText = '';
 
   if (open) {
-    target.textContent = `Nu open · tot ${today.close}`;
+    statusText = `Nu open · tot ${today.close}`;
+    target.textContent = statusText;
     target.classList.add('is-open');
-    return;
+  } else {
+    const next = nextOpenSlot(now);
+    const label = next?.offset === 0 ? 'vandaag' : next?.offset === 1 ? 'morgen' : next?.day.toLowerCase();
+    statusText = next ? `Nu gesloten · open ${label} om ${next.open}` : 'Bekijk openingstijden';
+    target.textContent = statusText;
+    target.classList.remove('is-open');
   }
 
-  const next = nextOpenSlot(now);
-  const label = next?.offset === 0 ? 'vandaag' : next?.offset === 1 ? 'morgen' : next?.day.toLowerCase();
-  target.textContent = next ? `Nu gesloten · open ${label} om ${next.open}` : 'Bekijk openingstijden';
-  target.classList.remove('is-open');
+  document.querySelectorAll('[data-hours-status]').forEach(element => {
+    element.textContent = statusText;
+    element.classList.toggle('is-open', open);
+  });
 }
 
 function renderSpecial(special) {
   const section = document.querySelector('#special-section');
+  const teaser = document.querySelector('#monthly-teaser');
   section.hidden = !special?.active;
+  teaser.hidden = !special?.active;
   if (!special?.active) return;
   const image = document.querySelector('#special-image');
   const number = document.querySelector('.special-number');
@@ -63,6 +72,7 @@ function renderSpecial(special) {
   document.querySelector('#special-name').textContent = special.name;
   document.querySelector('#special-description').textContent = special.description;
   document.querySelector('#special-price').textContent = euro.format(special.price);
+  document.querySelector('#monthly-teaser-name').textContent = special.name || 'Bekijk de special';
   if (special.imageUrl) {
     image.src = special.imageUrl;
     image.alt = special.name ? `Snack van de maand: ${special.name}` : 'Snack van de maand';
@@ -102,7 +112,7 @@ function renderMenu(data, selected = selectedCategory) {
   activeMenuData = data;
   selectedCategory = selected;
   const categories = [...data.categories].sort((a, b) => a.position - b.position);
-  const visibleProducts = data.products.filter(product => product.visible);
+  const visibleProducts = data.products.filter(product => product.visible && !product.archived);
   const query = menuSearch.trim().toLowerCase();
   const tabs = document.querySelector('#category-tabs');
   tabs.innerHTML = `<button class="category-tab ${selected === '' ? 'active' : ''}" data-category="" aria-pressed="${selected === ''}">Alles</button>` + categories.map(category =>
@@ -134,7 +144,7 @@ function renderPopular(data) {
   const section = document.querySelector('#popular-section');
   const grid = document.querySelector('#popular-grid');
   const ids = Array.isArray(data.popularProductIds) ? data.popularProductIds : [];
-  const visibleProducts = data.products.filter(product => product.visible);
+  const visibleProducts = data.products.filter(product => product.visible && !product.archived);
   const products = ids
     .map(id => visibleProducts.find(product => product.id === id))
     .filter(Boolean)
