@@ -459,26 +459,31 @@ textarea:focus-visible {
   font-variant-numeric: tabular-nums;
 }
 .menu-product-sized {
-  min-height: 90px;
+  min-height: 68px;
   display: grid;
-  grid-template-columns: minmax(9rem, 1fr) 1.55fr;
+  grid-template-columns: minmax(9rem, 1fr) auto;
   align-items: center;
-  gap: 18px;
-  padding: 14px 2px;
+  gap: 16px;
+  padding: 8px 2px;
   border-bottom: 1px solid var(--line);
   transition: background .18s ease;
 }
-.size-options { display: grid; grid-template-columns: repeat(3, minmax(74px, 1fr)); gap: 7px; }
-.size-option {
-  display: grid;
-  gap: 4px;
-  padding: 9px 10px;
-  background: #fff7ef;
-  border: 1px solid #f2d4b2;
-  border-radius: 8px;
+.size-options {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: end;
+  gap: 8px 14px;
 }
-.size-option span { color: #765235; font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: .05em; }
-.size-option strong { font-size: 13px; font-weight: 850; font-variant-numeric: tabular-nums; }
+.size-option {
+  min-width: 82px;
+  display: inline-grid;
+  grid-template-columns: 1fr;
+  gap: 2px;
+  padding-left: 14px;
+  border-left: 1px solid #efd6bd;
+}
+.size-option span { color: #8a6749; font-size: 9px; font-weight: 850; text-transform: uppercase; letter-spacing: .07em; }
+.size-option strong { color: var(--orange-dark); font-size: 14px; font-weight: 900; font-variant-numeric: tabular-nums; }
 .menu-empty {
   grid-column: 1 / -1;
   padding: 48px;
@@ -1008,8 +1013,15 @@ dialog::backdrop { background: rgba(17,17,17,.62); }
     margin-left: -16px;
     padding-left: 16px;
   }
-  .menu-product-sized { grid-template-columns: 1fr; gap: 10px; padding-block: 16px; }
-  .size-options { grid-template-columns: repeat(3, 1fr); }
+  .menu-product-sized { grid-template-columns: 1fr; gap: 12px; padding-block: 15px; }
+  .size-options { justify-content: start; gap: 10px; }
+  .size-option {
+    min-width: 86px;
+    padding: 9px 10px;
+    background: #fff7ef;
+    border: 1px solid #f2d4b2;
+    border-radius: 8px;
+  }
   .story-grid { gap: 42px; }
   .story-visual { min-height: 360px; padding: 28px; }
   .orange-panel { left: 28px; top: 38px; }
