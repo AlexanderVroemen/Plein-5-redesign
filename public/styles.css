@@ -598,6 +598,11 @@ textarea:focus-visible {
   letter-spacing: -.06em;
   text-wrap: balance;
 }
+.visit-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
 .contact-card {
   padding: 40px 46px;
   color: var(--ink);
@@ -1082,6 +1087,7 @@ dialog::backdrop { background: rgba(17,17,17,.62); }
   .orange-panel strong { font-size: 78px; }
   .visit-section { padding: 76px 0 86px; }
   .visit-grid { gap: 46px; }
+  .visit-actions { display: grid; }
   .contact-card { padding: 24px; }
   .contact-row { grid-template-columns: 1fr; gap: 12px; }
   .footer-grid { grid-template-columns: 1fr auto; }
