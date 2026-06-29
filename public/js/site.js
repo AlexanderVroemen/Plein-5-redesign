@@ -85,23 +85,61 @@ function renderSpecial(special) {
 }
 
 function productMarkup(product) {
+  const description = String(product.description || '').trim();
+  const detailAttrs = description ? ' role="button" tabindex="0" aria-expanded="false"' : '';
+  const detail = description
+    ? `<button class="menu-detail-toggle" type="button" aria-expanded="false"><span>Details</span><i>+</i></button>
+      <p class="menu-product-detail" hidden>${escapeHtml(description)}</p>`
+    : '';
   if (Array.isArray(product.variants) && product.variants.length) {
-    return `<article class="menu-product menu-product-sized">
-      <div class="menu-product-title">${escapeHtml(product.name)}</div>
+    return `<article class="menu-product menu-product-sized ${description ? 'has-detail' : ''}"${detailAttrs}>
+      <div class="menu-product-title">${escapeHtml(product.name)}${detail}</div>
       <div class="size-options">
         ${product.variants.map(variant => `<div class="size-option"><span>${escapeHtml(variant.label)}</span><strong>${euro.format(variant.price)}</strong></div>`).join('')}
       </div>
     </article>`;
   }
-  return `<article class="menu-item">
-    <span class="menu-item-name">${escapeHtml(product.name)}</span><span class="menu-dots"></span><span class="menu-price">${euro.format(product.price)}</span>
+  return `<article class="menu-item ${description ? 'has-detail' : ''}"${detailAttrs}>
+    <div class="menu-item-name">${escapeHtml(product.name)}${detail}</div><span class="menu-dots"></span><span class="menu-price">${euro.format(product.price)}</span>
   </article>`;
+}
+
+function toggleProductDetail(button) {
+  const item = button.closest('.has-detail');
+  const detail = button.parentElement.querySelector('.menu-product-detail');
+  const open = button.getAttribute('aria-expanded') === 'true';
+  button.setAttribute('aria-expanded', String(!open));
+  item.setAttribute('aria-expanded', String(!open));
+  button.querySelector('i').textContent = open ? '+' : '−';
+  detail.hidden = open;
+}
+
+function attachMenuDetailToggles() {
+  document.querySelectorAll('.menu-detail-toggle').forEach(button => {
+    button.addEventListener('click', event => {
+      event.stopPropagation();
+      toggleProductDetail(button);
+    });
+  });
+  document.querySelectorAll('.has-detail').forEach(item => {
+    item.addEventListener('click', event => {
+      if (event.target.closest('.menu-detail-toggle')) return;
+      toggleProductDetail(item.querySelector('.menu-detail-toggle'));
+    });
+    item.addEventListener('keydown', event => {
+      if (event.target !== item) return;
+      if (event.key !== 'Enter' && event.key !== ' ') return;
+      event.preventDefault();
+      toggleProductDetail(item.querySelector('.menu-detail-toggle'));
+    });
+  });
 }
 
 function productMatchesSearch(product, category, query) {
   if (!query) return true;
   const haystack = [
     product.name,
+    product.description,
     category?.name,
     ...(Array.isArray(product.variants) ? product.variants.map(variant => variant.label) : [])
   ].join(' ').toLowerCase();
@@ -138,6 +176,7 @@ function renderMenu(data, selected = selectedCategory) {
     document.querySelector('#menu').scrollIntoView({ block: 'start' });
   }));
   observeRevealElements(document.querySelectorAll('.menu-category'));
+  attachMenuDetailToggles();
 }
 
 function renderPopular(data) {

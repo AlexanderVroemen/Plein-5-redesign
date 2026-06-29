@@ -8,7 +8,7 @@
   <meta name="theme-color" content="#111111">
   <title>Beheer — Plein5</title>
   <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="/styles.css?v=11">
+  <link rel="stylesheet" href="/styles.css?v=13">
 </head>
 <body class="admin-body">
   <section class="login-view" id="login-view">
@@ -118,6 +118,7 @@
       <div class="dialog-heading"><div><p class="eyebrow">Permanente kaart</p><h2 id="product-dialog-title">Product toevoegen</h2></div><button type="button" class="icon-button close-dialog" aria-label="Sluiten">×</button></div>
       <input name="id" type="hidden">
       <label>Productnaam<input name="name" required></label>
+      <label class="product-description-field">Details / beschrijving<textarea name="description" rows="3" placeholder="Bijv. rundvleesburger, sla, tomaat, augurk en burgersaus"></textarea></label>
       <div class="form-columns">
         <label id="standard-price-field">Prijs (€)<input name="price" type="number" min="0" step="0.05" required></label>
         <label>Categorie<select name="categoryId" required></select></label>
@@ -162,6 +163,6 @@
     </form>
   </dialog>
 
-  <script is:inline src="/js/admin.js?v=13" defer></script>
+  <script is:inline src="/js/admin.js?v=15" defer></script>
 </body>
 </html>

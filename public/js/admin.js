@@ -63,7 +63,7 @@ function filteredProducts() {
   return [...menuData.products]
     .filter(product =>
       (showArchived || !product.archived)
-      && (!search || product.name.toLowerCase().includes(search))
+      && (!search || [product.name, product.description].join(' ').toLowerCase().includes(search))
       && (!category || product.categoryId === category)
     )
     .sort((a, b) => categoryPosition(a.categoryId) - categoryPosition(b.categoryId) || a.position - b.position || a.name.localeCompare(b.name, 'nl'));
@@ -88,14 +88,14 @@ function renderProducts() {
   categoryFilter.value = currentFilter;
   const products = filteredProducts();
   document.querySelector('#product-table').innerHTML = products.map(product => `<tr class="${product.archived ? 'archived-row' : ''}" data-product-id="${product.id}">
-    <td class="product-name">${escapeHtml(product.name)}</td>
+    <td class="product-name">${escapeHtml(product.name)}${product.description ? '<small>Details</small>' : ''}</td>
     <td>${escapeHtml(categoryName(product.categoryId))}</td>
     <td class="price-cell">${productPriceSummary(product)}</td>
     <td><span class="badge ${product.visible ? 'visible' : 'hidden'}">${product.visible ? 'Zichtbaar' : 'Verborgen'}</span>${product.archived ? '<span class="badge archived">Archief</span>' : ''}${isPopular(product.id) ? '<span class="badge popular">Populair</span>' : ''}</td>
     <td><div class="row-actions"><button class="icon-button edit-product" data-id="${product.id}" title="Bewerken">✎</button><button class="icon-button duplicate-product" data-id="${product.id}" title="Dupliceren">⧉</button>${product.archived ? `<button class="icon-button restore-product" data-id="${product.id}" title="Terugzetten">↺</button>` : `<button class="icon-button delete-product" data-id="${product.id}" title="Archiveren">×</button>`}</div></td>
   </tr>`).join('') || '<tr><td colspan="5">Geen producten gevonden.</td></tr>';
   document.querySelector('#mobile-product-list').innerHTML = products.map(product => `<article class="mobile-product ${product.archived ? 'archived-row' : ''}" data-product-id="${product.id}">
-    <p><strong>${escapeHtml(product.name)}</strong><small>${escapeHtml(categoryName(product.categoryId))} · ${product.archived ? 'Archief' : product.visible ? 'Zichtbaar' : 'Verborgen'}${isPopular(product.id) ? ' · Populair' : ''}</small></p>
+    <p><strong>${escapeHtml(product.name)}</strong><small>${escapeHtml(categoryName(product.categoryId))} · ${product.archived ? 'Archief' : product.visible ? 'Zichtbaar' : 'Verborgen'}${product.description ? ' · Details' : ''}${isPopular(product.id) ? ' · Populair' : ''}</small></p>
     <span class="price-cell">${productPriceSummary(product)}</span>
     <div class="row-actions"><button class="icon-button edit-product" data-id="${product.id}">✎</button><button class="icon-button duplicate-product" data-id="${product.id}">⧉</button>${product.archived ? `<button class="icon-button restore-product" data-id="${product.id}">↺</button>` : `<button class="icon-button delete-product" data-id="${product.id}">×</button>`}</div>
   </article>`).join('');
@@ -150,6 +150,7 @@ function openProductDialog(id = '') {
     form.dataset.mode = 'edit';
     form.elements.id.value = product.id;
     form.elements.name.value = product.name;
+    form.elements.description.value = product.description || '';
     form.elements.price.value = product.price.toFixed(2);
     form.elements.categoryId.value = product.categoryId;
     form.elements.visible.checked = product.visible;
@@ -167,6 +168,7 @@ function openProductDialog(id = '') {
 function productPayload(product, overrides = {}) {
   return {
     name: product.name,
+    description: product.description || '',
     price: product.price,
     variants: Array.isArray(product.variants) ? product.variants : [],
     categoryId: product.categoryId,
@@ -206,6 +208,7 @@ async function duplicateProduct(id) {
     method: 'POST',
     body: JSON.stringify({
       name: copyName,
+      description: product.description || '',
       price: product.price,
       variants: Array.isArray(product.variants) ? product.variants : [],
       categoryId: product.categoryId,
@@ -503,6 +506,7 @@ document.querySelector('#product-form').addEventListener('submit', async event =
       method: id ? 'PUT' : 'POST',
       body: JSON.stringify({
         name: form.elements.name.value,
+        description: form.elements.description.value,
         price: form.elements.price.value,
         variants,
         categoryId: form.elements.categoryId.value,

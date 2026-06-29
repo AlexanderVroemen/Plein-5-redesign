@@ -450,8 +450,52 @@ textarea:focus-visible {
 }
 .menu-item:hover,
 .menu-product-sized:hover { background: #fffaf4; }
+.has-detail { cursor: pointer; }
+.has-detail:focus-visible {
+  outline: 3px solid rgba(244,122,22,.28);
+  outline-offset: 3px;
+}
 .menu-item-name,
 .menu-product-title { font-size: 15px; font-weight: 760; }
+.menu-item-name,
+.menu-product-title {
+  display: grid;
+  align-content: center;
+  gap: 7px;
+}
+.menu-detail-toggle {
+  width: max-content;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 0;
+  color: var(--orange-dark);
+  border: 0;
+  background: transparent;
+  font-size: 11px;
+  font-weight: 850;
+  cursor: pointer;
+}
+.menu-detail-toggle span { border-bottom: 1px solid rgba(200,95,12,.35); }
+.menu-detail-toggle i {
+  width: 17px;
+  height: 17px;
+  display: grid;
+  place-items: center;
+  color: var(--black);
+  background: #ffe0be;
+  border-radius: 50%;
+  font-style: normal;
+  line-height: 1;
+}
+.menu-product-detail {
+  max-width: 34rem;
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.55;
+}
 .menu-dots { align-self: center; border-bottom: 1px dotted #cfc7bc; }
 .menu-price {
   color: var(--orange-dark);
@@ -800,6 +844,15 @@ td { height: 67px; padding: 10px 22px; border-bottom: 1px solid var(--line); fon
 tbody tr:last-child td { border-bottom: 0; }
 .archived-row { opacity: .68; }
 .product-name { font-weight: 800; }
+.product-name small {
+  display: block;
+  margin-top: 5px;
+  color: var(--orange-dark);
+  font-size: 10px;
+  font-weight: 850;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+}
 .price-cell { font-weight: 850; font-variant-numeric: tabular-nums; }
 .badge { display: inline-flex; align-items: center; gap: 7px; padding: 6px 10px; border-radius: 999px; font-size: 10px; font-weight: 800; }
 .badge::before { content: ""; width: 6px; height: 6px; border-radius: 50%; }

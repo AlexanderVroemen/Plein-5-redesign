@@ -8,6 +8,7 @@ export type MenuVariant = {
 export type MenuProduct = {
   id: string;
   name: string;
+  description?: string;
   price: number;
   categoryId: string;
   position: number;

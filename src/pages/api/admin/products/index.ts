@@ -28,6 +28,7 @@ export const POST: APIRoute = async ({ locals, request }) => {
   const product = {
     id: `${slug(name)}-${randomSuffix()}`,
     name,
+    description: String(body.description || '').trim(),
     price: variants.length ? variants[0].price : normalizePrice(body.price),
     categoryId,
     position: data.products.filter((item) => item.categoryId === categoryId).length + 1,

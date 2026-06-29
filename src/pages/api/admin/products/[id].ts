@@ -42,6 +42,7 @@ export const PUT: APIRoute = async ({ locals, params, request }) => {
   data.products[index] = {
     ...data.products[index],
     name,
+    description: String(body.description || '').trim(),
     price: variants.length ? variants[0].price : normalizePrice(body.price),
     categoryId,
     visible: body.visible !== false,
